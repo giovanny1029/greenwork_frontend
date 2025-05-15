@@ -23,7 +23,6 @@
   cursor: pointer;
 }
 
-/* Custom scrollbar styles */
 .time-button {
   scrollbar-width: thin;
   scrollbar-color: #1a472a #e7efe9;

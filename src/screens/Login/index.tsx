@@ -1,24 +1,22 @@
 import { JSX, useState } from 'react'
 import LoginForm from './components/LoginForm'
 import { login, register } from '../../services/auth'
+import { useNavigate } from 'react-router-dom'
 
 const Login = (): JSX.Element => {
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login')
   const [error, setError] = useState<string | null>(null)
+  const navigate = useNavigate()
 
   const handleLogin = async (email: string, password: string) => {
     try {
       setError(null)
       const response = await login({ email, password })
-      console.log('Login exitoso:', response)
-      // Aquí puedes manejar el token y la información del usuario
-      // Por ejemplo, guardarlo en el localStorage y/o en un estado global
       localStorage.setItem('token', response.token)
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Error en el inicio de sesión')
     }
   }
-
   const handleRegister = async (
     first_name: string,
     last_name: string,
@@ -28,8 +26,6 @@ const Login = (): JSX.Element => {
     try {
       setError(null)
       const response = await register({ first_name, last_name, email, password })
-      console.log('Registro exitoso:', response)
-      // Aquí puedes manejar el token y la información del usuario
       localStorage.setItem('token', response.token)
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Error en el registro')
@@ -82,9 +78,12 @@ const Login = (): JSX.Element => {
 
           {activeTab === 'login' && (
             <div className="mt-6 text-center">
-              <a href="#" className="text-sm text-gray-600 hover:text-[#1a472a] underline">
+              <button
+                onClick={() => navigate('/forgot-password')}
+                className="text-sm text-gray-600 hover:text-[#1a472a] underline"
+              >
                 ¿Olvidaste la contraseña?
-              </a>
+              </button>
             </div>
           )}
         </div>

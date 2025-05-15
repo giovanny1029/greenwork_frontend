@@ -22,10 +22,6 @@ interface AuthResponse {
   }
 }
 
-interface ErrorResponse {
-  message: string
-}
-
 const API_URL = import.meta.env.VITE_API_URL
 
 const api = axios.create({
@@ -40,17 +36,15 @@ export const login = async (credentials: LoginCredentials): Promise<AuthResponse
     const { data } = await api.post<AuthResponse>('/users/login', credentials)
     return data
   } catch (error: any) {
-    const errorMessage = error?.response?.data?.message || 'Error en la autenticación'
-    throw new Error(errorMessage)
+    throw new Error(error?.response?.data?.message || 'Error en la autenticación')
   }
 }
 
 export const register = async (data: RegisterData): Promise<AuthResponse> => {
   try {
-    const response = await api.post<AuthResponse>('/users/register', data)
-    return response.data
+    const { data: responseData } = await api.post<AuthResponse>('/users/register', data)
+    return responseData
   } catch (error: any) {
-    const errorMessage = error?.response?.data?.message || 'Error en el registro'
-    throw new Error(errorMessage)
+    throw new Error(error?.response?.data?.message || 'Error en el registro')
   }
 }
