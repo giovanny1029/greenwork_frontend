@@ -1,33 +1,31 @@
-import { JSX } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { JSX } from 'react'
+import Header from '../../components/Header'
+import FormInput from '../../components/forms/FormInput'
+import Button from '../../components/forms/Button'
 
 const Profile = (): JSX.Element => {
-  const navigate = useNavigate()
+  const [user, setUser] = React.useState({
+    nombre: '',
+    apellidos: '',
+    password: '',
+    newPassword: ''
+  })
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setUser({ ...user, [name]: value })
+  }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    // TODO: Implementar actualización de perfil
   }
+
+  console.log({user})
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#1a472a] to-[#2d5a3c] p-4">
-      {/* Header */}
-      <header className="flex justify-between items-center p-4 text-white">
-        <div className="flex gap-4">
-          <button onClick={() => navigate('/user')} className="hover:text-gray-200">
-            Ver salas
-          </button>
-          <button onClick={() => navigate('/reservations')} className="hover:text-gray-200">
-            Mis reservas
-          </button>
-        </div>
-        <div className="flex gap-4">
-          <button className="hover:text-gray-200">User</button>
-          <button className="hover:text-gray-200">→</button>
-        </div>
-      </header>
+      <Header />
 
-      {/* Profile Form */}
       <div className="max-w-2xl mx-auto mt-8">
         <div className="bg-white rounded-lg p-8">
           <div className="flex justify-center mb-8">
@@ -49,64 +47,48 @@ const Profile = (): JSX.Element => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="nombre" className="block text-sm font-medium text-gray-700">
-                Nombre
-              </label>
-              <input
-                type="text"
-                id="nombre"
-                name="nombre"
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
-              />
-            </div>
+            <FormInput
+              label="Nombre"
+              type="text"
+              name="nombre"
+              value=""
+              onChange={handleChange}
+              placeholder="Ingrese su nombre"
+            />
 
-            <div>
-              <label htmlFor="apellidos" className="block text-sm font-medium text-gray-700">
-                Apellidos
-              </label>
-              <input
-                type="text"
-                id="apellidos"
-                name="apellidos"
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
-              />
-            </div>
+            <FormInput
+              label="Apellidos"
+              type="text"
+              name="apellidos"
+              value=""
+              onChange={handleChange}
+              placeholder="Ingrese sus apellidos"
+            />
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Contraseña actual
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
-              />
-            </div>
+            <FormInput
+              label="Contraseña actual"
+              type="password"
+              name="password"
+              value=""
+              onChange={handleChange}
+              placeholder="Ingrese su contraseña actual"
+            />
 
-            <div>
-              <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">
-                Contraseña nueva
-              </label>
-              <input
-                type="password"
-                id="newPassword"
-                name="newPassword"
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-green-500 focus:border-green-500"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-[#2d5a3c] text-white py-2 px-4 rounded-md hover:bg-[#1a472a] transition-colors"
-            >
-              Guardar cambios
-            </button>
+            <FormInput
+              label="Contraseña nueva"
+              type="password"
+              name="newPassword"
+              value=""
+              onChange={handleChange}
+              placeholder="Ingrese su nueva contraseña"
+            />
+            <Button type="submit" className="cursor-pointer w-full bg-[#2d5a3c] text-white py-2 px-4 rounded-md hover:bg-[#1a472a] transition-colors" text="Guardar cambios" />
           </form>
 
           <div className="mt-6 text-right">
-            <button className="text-red-600 hover:text-red-800 text-sm">Darme de baja</button>
+            <a className="cursor-pointer text-red-600 hover:text-red-800 text-sm" href="#">
+              Darme de baja
+            </a>
           </div>
         </div>
       </div>

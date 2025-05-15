@@ -1,5 +1,6 @@
 import { JSX } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Header from '../../components/Header'
 
 const User = (): JSX.Element => {
   const navigate = useNavigate()
@@ -7,20 +8,7 @@ const User = (): JSX.Element => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#1a472a] to-[#2d5a3c] p-4">
       {/* Header */}
-      <header className="flex justify-between items-center p-4 text-white">
-        <div>
-          <button className="hover:text-gray-200">Ver salas</button>
-        </div>
-        <div className="flex gap-4">
-          <button onClick={() => navigate('/reservations')} className="hover:text-gray-200">
-            Mis reservas
-          </button>
-          <button onClick={() => navigate('/profile')} className="hover:text-gray-200">
-            User
-          </button>
-          <button className="hover:text-gray-200">→</button>
-        </div>
-      </header>
+      <Header />
 
       {/* Salas Grid */}
       <div className="mt-8 space-y-4 flex flex-col items-center">

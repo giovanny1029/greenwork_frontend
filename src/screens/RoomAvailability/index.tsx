@@ -1,8 +1,6 @@
 import { JSX, useState, useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import './styles.css'
-import {
-  format,
+import {  format,
   addMonths,
   subMonths,
   startOfMonth,
@@ -10,7 +8,6 @@ import {
   eachDayOfInterval,
   isSameDay,
   isToday,
-  parse,
   getDay
 } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -97,9 +94,6 @@ const RoomAvailability = (): JSX.Element => {
     }
     return slots
   }
-
-  const availableStartTimes = generateTimeSlots()
-
   // Generate end times based on start time
   const generateEndTimes = (start: string) => {
     const [startHour, startMinutes] = start.split(':').map(Number)
@@ -251,8 +245,7 @@ const RoomAvailability = (): JSX.Element => {
                       onClick={() => {
                         setIsStartOpen(!isStartOpen)
                         setIsEndOpen(false)
-                      }}
-                      className="time-button flex items-center justify-between"
+                      }}                      className="appearance-none bg-white border border-gray-200 rounded-md py-2 pl-4 pr-8 text-sm cursor-pointer relative min-w-[120px] text-left focus:outline-none focus:ring-2 focus:ring-[#1a472a] focus:border-[#1a472a] flex items-center justify-between"
                     >
                       <span>{startTime}</span>
                       <svg
@@ -268,7 +261,7 @@ const RoomAvailability = (): JSX.Element => {
                       </svg>
                     </button>
                     {isStartOpen && (
-                      <div className="time-dropdown">
+                      <div className="absolute bottom-full left-0 z-50 max-h-[200px] w-full overflow-auto bg-white border border-gray-200 rounded-md shadow-lg">
                         {generateTimeSlots().map((time) => (
                           <div
                             key={time}
@@ -294,8 +287,7 @@ const RoomAvailability = (): JSX.Element => {
                       onClick={() => {
                         setIsEndOpen(!isEndOpen)
                         setIsStartOpen(false)
-                      }}
-                      className="time-button flex items-center justify-between"
+                      }}                      className="appearance-none bg-white border border-gray-200 rounded-md py-2 pl-4 pr-8 text-sm cursor-pointer relative min-w-[120px] text-left focus:outline-none focus:ring-2 focus:ring-[#1a472a] focus:border-[#1a472a] flex items-center justify-between"
                     >
                       <span>{endTime}</span>
                       <svg
@@ -311,7 +303,7 @@ const RoomAvailability = (): JSX.Element => {
                       </svg>
                     </button>
                     {isEndOpen && (
-                      <div className="time-dropdown">
+                      <div className="absolute bottom-full left-0 z-50 max-h-[200px] w-full overflow-auto bg-white border border-gray-200 rounded-md shadow-lg">
                         {generateEndTimes(startTime).map((time) => (
                           <div
                             key={time}

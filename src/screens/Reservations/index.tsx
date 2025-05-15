@@ -1,6 +1,5 @@
 import { JSX } from 'react'
 import { useNavigate } from 'react-router-dom'
-import './styles.css'
 
 type Reservation = {
   id: string
@@ -123,11 +122,12 @@ const Reservations = (): JSX.Element => {
         </div>
       </header>
 
-      <div className="mt-8 space-y-8 flex flex-col items-center w-full">
-        {/* Próximas reservas */}
-        <section className="folder-tab">
-          <div className="folder-tab-header">Próximas</div>
-          <div className="folder-content">
+      <div className="mt-8 space-y-8 flex flex-col items-center w-full">        {/* Próximas reservas */}
+        <section className="relative mb-3 w-3/4 mx-auto">
+          <div className="bg-[#e8f5e9] text-[#2e7d32] px-4 py-1.5 rounded-t-lg inline-block font-bold text-xl relative z-10">
+            Próximas
+          </div>
+          <div className="bg-[#e8f5e9] rounded-tr-lg rounded-b-lg p-2 -mt-px relative z-0 shadow-sm">
             <div className="space-y-4">
               {getReservationsByStatus('upcoming').map((reservation) => (
                 <ReservationCard key={reservation.id} reservation={reservation} />
@@ -137,9 +137,11 @@ const Reservations = (): JSX.Element => {
         </section>
 
         {/* Reservas canceladas */}
-        <section className="folder-tab">
-          <div className="folder-tab-header">Canceladas</div>
-          <div className="folder-content">
+        <section className="relative mb-3 w-3/4 mx-auto">
+          <div className="bg-[#e8f5e9] text-[#2e7d32] px-4 py-1.5 rounded-t-lg inline-block font-bold text-xl relative z-10">
+            Canceladas
+          </div>
+          <div className="bg-[#e8f5e9] rounded-tr-lg rounded-b-lg p-2 -mt-px relative z-0 shadow-sm">
             <div className="space-y-4">
               {getReservationsByStatus('cancelled').map((reservation) => (
                 <ReservationCard key={reservation.id} reservation={reservation} />
@@ -149,9 +151,11 @@ const Reservations = (): JSX.Element => {
         </section>
 
         {/* Reservas anteriores */}
-        <section className="folder-tab">
-          <div className="folder-tab-header">Anteriores</div>
-          <div className="folder-content">
+        <section className="relative mb-3 w-3/4 mx-auto">
+          <div className="bg-[#e8f5e9] text-[#2e7d32] px-4 py-1.5 rounded-t-lg inline-block font-bold text-xl relative z-10">
+            Anteriores
+          </div>
+          <div className="bg-[#e8f5e9] rounded-tr-lg rounded-b-lg p-2 -mt-px relative z-0 shadow-sm">
             <div className="space-y-4">
               {getReservationsByStatus('past').map((reservation) => (
                 <ReservationCard key={reservation.id} reservation={reservation} />
