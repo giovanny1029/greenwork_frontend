@@ -27,7 +27,7 @@ export interface ReservationCardProps {
   date?: string
   start_time?: string
   end_time?: string
-  status?: 'upcoming' | 'cancelled' | 'past'
+  reservation_status?: 'upcoming' | 'cancelled' | 'past'
   onCancel?: (id: string) => void
 }
 
@@ -97,8 +97,9 @@ const ReservationCard = (props: ReservationCardProps): JSX.Element => {
     date = '',
     start_time = '',
     end_time = '',
-    status = 'upcoming',
+    reservation_status = 'upcoming',
     room_id = '',
+    status = '',
     onCancel
   } = props
 
@@ -135,18 +136,18 @@ const ReservationCard = (props: ReservationCardProps): JSX.Element => {
         </div>
       </div>
       <div className="flex flex-col items-end">
-        <div
-          className="px-2 py-1 text-xs font-medium rounded-full mb-2"
-          style={{
-            backgroundColor:
-              status === 'upcoming' ? '#e6f4ea' : status === 'cancelled' ? '#fef0f0' : '#f3f4f6',
-            color:
-              status === 'upcoming' ? '#34a853' : status === 'cancelled' ? '#d32f2f' : '#6b7280'
-          }}
-        >
-          {status === 'upcoming' ? 'Próxima' : status === 'cancelled' ? 'Cancelada' : 'Pasada'}
-        </div>
-        {status === 'upcoming' && onCancel && (
+        {
+          reservation_status === 'upcoming' && (
+            <div
+              className={`px-2 py-1 text-xs font-medium rounded-full mb-2
+                ${status === 'confirmed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}
+              `}
+            >
+              {status === 'confirmed' ? 'Confirmada' : 'Pendiente'}
+            </div>
+          )
+        }
+        {reservation_status === 'upcoming' && onCancel && (
           <Button onClick={() => onCancel(id)} className="text-red-500 hover:text-red-700 text-sm">
             Cancelar
           </Button>

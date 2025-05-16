@@ -122,7 +122,7 @@ const Reservations = (): JSX.Element => {
               key={reservation.id}
               {...reservation}
               onCancel={handleCancelReservation}
-              status={status}
+              reservation_status={status}
             />
           ))}
         </div>

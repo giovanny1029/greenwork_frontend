@@ -254,13 +254,11 @@ const AdminRooms = (): JSX.Element => {
               className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#1a472a] focus:ring-[#1a472a] sm:text-sm ${
                 formErrors.company_id ? 'border-red-300' : ''
               }`}
+              disabled
             >
-              <option value="">Selecciona una compañía</option>
-              {companies.map((company) => (
-                <option key={company.id} value={company.id}>
-                  {company.name}
+              <option key={companies[0].id} value={companies[0].id} selected>
+                  {companies[0].name}
                 </option>
-              ))}
             </select>
             {formErrors.company_id && (
               <p className="mt-1 text-sm text-red-600">{formErrors.company_id}</p>

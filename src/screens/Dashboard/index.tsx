@@ -68,7 +68,7 @@ const Dashboard = (): JSX.Element => {
   }, [user])
 
   const handleReservationClick = (reservationId: string) => {
-    navigate(`/reservations/${reservationId}`)
+    navigate(`/room/${reservationId}`)
   }
 
   const handleRoomClick = (roomId: string) => {
@@ -93,7 +93,7 @@ const Dashboard = (): JSX.Element => {
                 <ReservationCard
                   key={reservation.id}
                   reservation={reservation}
-                  onClick={() => handleReservationClick(reservation.id)}
+                  onClick={() => handleReservationClick(reservation.room_id)}
                 />
               ))}
 

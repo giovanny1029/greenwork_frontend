@@ -144,34 +144,38 @@ const AdminCompanies = (): JSX.Element => {
               Listado de todas las compañías del sistema. Puedes crear, editar y eliminar compañías.
             </p>
           </div>
-          <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => {
-                setCurrentCompany({
-                  name: '',
-                  email: '',
-                  phone: '',
-                  address: '',
-                  user_id: ''
-                })
-                setFormErrors({})
-                setIsModalOpen(true)
-              }}
-              className="inline-flex items-center"
-            >
-              <svg className="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                />
-              </svg>
-              Añadir Compañía
-            </Button>
-          </div>
+          {
+            !isLoading && companies?.length === 0 && (
+              <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => {
+                    setCurrentCompany({
+                      name: '',
+                      email: '',
+                      phone: '',
+                      address: '',
+                      user_id: ''
+                    })
+                    setFormErrors({})
+                    setIsModalOpen(true)
+                  }}
+                  className="inline-flex items-center"
+                >
+                  <svg className="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    />
+                  </svg>
+                  Añadir Compañía
+                </Button>
+              </div>
+            )
+          }
         </div>
 
         <div className="mt-8">
@@ -278,7 +282,7 @@ const AdminCompanies = (): JSX.Element => {
               }`}
             >
               <option value="">Selecciona un usuario</option>
-              {users.map((user) => (
+              {users.filter((user) => user.role === 'admin').map((user) => (
                 <option key={user.id} value={user.id}>
                   {user.first_name} {user.last_name} ({user.email})
                 </option>
