@@ -1,0 +1,101 @@
+import { JSX, ReactNode } from 'react'
+
+interface CardProps {
+  children?: ReactNode
+  className?: string
+  onClick?: () => void
+  title?: string
+  subtitle?: string
+  description?: string
+  imageUrl?: string
+  actionText?: string
+  onAction?: () => void
+}
+
+const Card = ({
+  children,
+  className = '',
+  onClick,
+  title,
+  subtitle,
+  description,
+  imageUrl,
+  actionText,
+  onAction
+}: CardProps): JSX.Element => {
+  const clickStyles = onClick ? 'cursor-pointer hover:shadow-md transition-shadow duration-300' : ''
+
+  // Estilos base del card usando Tailwind con soporte para temas
+  const cardClasses = 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 shadow-sm dark:shadow-md p-6 rounded-2xl'
+
+  // Estilos para títulos y textos
+  const titleStyle = {
+    color: theme.colors.text,
+    marginBottom: theme.spacing.xs
+  }
+
+  const subtitleStyle = {
+    color: theme.colors.text,
+    opacity: 0.7,
+    marginBottom: theme.spacing.sm
+  }
+
+  const descriptionStyle = {
+    color: theme.colors.text,
+    marginBottom: theme.spacing.md
+  }
+
+  // Estilos para el botón de acción
+  const actionButtonStyle = {
+    backgroundColor: theme.colors.primary,
+    color: theme.colors.white,
+    marginTop: theme.spacing.sm,
+    padding: `${theme.spacing.xs} ${theme.spacing.md}`,
+    borderRadius: theme.borderRadius.medium,
+    transition: 'background-color 0.2s'
+  }
+
+  // Si tenemos datos estructurados, mostrar una tarjeta estructurada
+  if (title || subtitle || description) {
+    return (
+      <div
+        className={`${clickStyles} ${className} overflow-hidden relative`}
+        style={cardStyle}
+        onClick={onClick}
+      >
+        {imageUrl && (
+          <div
+            className="h-40 -mx-6 -mt-6 mb-4 bg-center bg-cover"
+            style={{ backgroundImage: `url(${imageUrl})` }}
+          />
+        )}
+
+        {title && <h3 className="text-lg font-semibold mb-1" style={titleStyle}>{title}</h3>}
+        {subtitle && <p className="text-sm mb-3" style={subtitleStyle}>{subtitle}</p>}
+        {description && <p className="mb-4" style={descriptionStyle}>{description}</p>}
+
+        {actionText && onAction && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onAction()
+            }}
+            className="mt-2 px-4 py-2 text-sm rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2"
+            style={actionButtonStyle}
+          >
+            {actionText}
+          </button>
+        )}
+      </div>
+    )
+  }
+
+  // Si no hay datos estructurados, mostrar los hijos
+  return (
+    <div className={`${clickStyles} ${className} relative`} style={cardStyle} onClick={onClick}>
+      {children}
+    </div>
+  )
+}
+
+export default Card

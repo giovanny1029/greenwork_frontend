@@ -169,12 +169,6 @@ const ForgotPassword = (): JSX.Element => {
         <div className="text-5xl font-light space-y-2 text-[#C5D3CA]">
           <h2>Recupera tu</h2>
           <h3>acceso</h3>
-          <GradientText
-            text="Gran Canaria"
-            from="green-300"
-            to="emerald-500"
-            className="text-5xl font-light"
-          />
         </div>
       </div>
 

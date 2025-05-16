@@ -21,7 +21,7 @@ const EmailStep = ({
     <form onSubmit={onSubmit} className="space-y-6">
       <div className="text-center mb-8">
         <h2 className="text-2xl font-bold mb-4">
-          <GradientText text="Recuperar acceso" from="green-600" to="emerald-700" />
+          <GradientText text="Recuperar acceso" from="green-400" to="green-900" />
         </h2>
         <p className="text-gray-600">
           Introduce tu correo electrónico y te enviaremos un código de verificación
