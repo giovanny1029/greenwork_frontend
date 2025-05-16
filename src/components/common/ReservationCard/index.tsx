@@ -1,30 +1,32 @@
-import { JSX } from 'react'
-import Button from '../Button'
-import Card from '../Card'
-import { Reservation as ReservationType } from '../../../services/reservations'
-import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
-
-interface LegacyReservationCardProps {
-  id: string
-  roomName: string
-  capacity: string
-  date: string
-  startTime: string
-  endTime: string
-  status: 'upcoming' | 'cancelled' | 'past'
-  onCancel?: (id: string) => void
-}
-
-interface ReservationCardProps {
+export interface ReservationCardProps {
   reservation?: ReservationType
   onClick?: () => void
   id?: string
   roomName?: string
   capacity?: string
   date?: string
-  startTime?: string
-  endTime?: string
+  start_time?: string
+  end_time?: string
+  status?: 'confirmed' | 'pending' | 'cancelled'
+  onCancel?: (id: string) => void
+} 'react'
+import Button from '../Button'
+import Card from '../Card'
+import { Reservation as ReservationType } from '../../../services/reservations'
+import { format } from 'date-fns'
+import { es } from 'date-fns/locale'
+import { JSX } from 'react'
+import { Link } from 'react-router-dom'
+
+export interface ReservationCardProps {
+  reservation?: ReservationType
+  onClick?: () => void
+  id?: string
+  roomName?: string
+  capacity?: string
+  date?: string
+  start_time?: string
+  end_time?: string
   status?: 'upcoming' | 'cancelled' | 'past'
   onCancel?: (id: string) => void
 }
@@ -93,18 +95,25 @@ const ReservationCard = (props: ReservationCardProps): JSX.Element => {
     roomName = '',
     capacity = '',
     date = '',
-    startTime = '',
-    endTime = '',
+    start_time = '',
+    end_time = '',
     status = 'upcoming',
+    room_id = '',
     onCancel
   } = props
+
+  console.log(props)
 
   return (
     <Card className="flex justify-between items-start mb-2 bg-white shadow-sm">
       <div className="flex-grow">
         <h3 className="text-lg font-semibold text-gray-800">{roomName}</h3>
         <div className="space-y-0.5 text-gray-600 mt-1">
-          <p className="text-sm">Capacidad: {capacity}</p>
+          <h4 className="text-sm font-medium">
+            <Link to={`/room/${room_id}`} className="text-blue-600 hover:underline">
+              Ver sala
+            </Link>
+          </h4>
           <p className="text-sm">Fecha: {date}</p>
           <p className="text-sm flex items-center">
             <svg
@@ -121,7 +130,7 @@ const ReservationCard = (props: ReservationCardProps): JSX.Element => {
                 d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-            {startTime} - {endTime}
+            {start_time} - {end_time}
           </p>
         </div>
       </div>

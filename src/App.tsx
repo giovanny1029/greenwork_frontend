@@ -2,6 +2,7 @@ import { JSX } from 'react'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { ThemeProvider } from './contexts/ThemeContext'
+import { Toaster } from 'react-hot-toast'
 import './App.css'
 import Login from './screens/Login'
 import User from './screens/User'
@@ -13,6 +14,14 @@ import ForgotPassword from './screens/ForgotPassword'
 import Dashboard from './screens/Dashboard'
 import Header from './components/Header'
 import LoadingSpinner from './components/common/LoadingSpinner'
+import AdminRoute from './components/admin/AdminRoute'
+
+// Admin Screens
+import AdminDashboard from './screens/Admin/Dashboard'
+import AdminUsers from './screens/Admin/Users'
+import AdminCompanies from './screens/Admin/Companies'
+import AdminRooms from './screens/Admin/Rooms'
+import AdminReservations from './screens/Admin/Reservations'
 
 // Componente para rutas protegidas
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
@@ -49,11 +58,9 @@ function AppRoutes(): JSX.Element {
         path="/"
         element={user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />}
       />
-
       {/* Rutas públicas */}
       <Route path="/login" element={<Login />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
-
       {/* Rutas protegidas */}
       <Route
         path="/dashboard"
@@ -126,10 +133,50 @@ function AppRoutes(): JSX.Element {
             <Profile />
           </ProtectedRoute>
         }
-      />
-
+      />{' '}
       {/* Ruta para manejar URLs no encontradas */}
       <Route path="*" element={<Navigate to="/" replace />} />
+      {/* Rutas de administración */}
+      <Route
+        path="/admin"
+        element={
+          <AdminRoute>
+            <AdminDashboard />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/admin/users"
+        element={
+          <AdminRoute>
+            <AdminUsers />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/admin/companies"
+        element={
+          <AdminRoute>
+            <AdminCompanies />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/admin/rooms"
+        element={
+          <AdminRoute>
+            <AdminRooms />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/admin/reservations"
+        element={
+          <AdminRoute>
+            <AdminReservations />
+          </AdminRoute>
+        }
+      />
     </Routes>
   )
 }
@@ -139,6 +186,7 @@ function App(): JSX.Element {
     <ThemeProvider>
       <AuthProvider>
         <AppRoutes />
+        <Toaster position="top-right" />
       </AuthProvider>
     </ThemeProvider>
   )

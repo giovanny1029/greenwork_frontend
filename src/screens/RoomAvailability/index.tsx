@@ -16,7 +16,6 @@ import { useAuth } from '../../contexts/AuthContext'
 import { getRoomById, Room } from '../../services/rooms'
 import { createReservation } from '../../services/reservations'
 import LoadingSpinner from '../../components/common/LoadingSpinner'
-import './styles.css'
 
 const RoomAvailability = (): JSX.Element => {
   const navigate = useNavigate()
@@ -122,8 +121,33 @@ const RoomAvailability = (): JSX.Element => {
 
   // Handle reservation
   const handleReservation = async () => {
-    if (!selectedDate || !startTime || !endTime || !roomId || !user) {
-      setError('No se pudo procesar la reserva. Faltan datos requeridos.')
+    // Reset messages
+    setError(null)
+    setSuccessMessage(null)
+
+    // Validation checks
+    if (!selectedDate) {
+      setError('Por favor seleccione una fecha para la reserva')
+      return
+    }
+
+    if (!startTime) {
+      setError('Por favor seleccione una hora de inicio')
+      return
+    }
+
+    if (!endTime) {
+      setError('Por favor seleccione una hora de finalización')
+      return
+    }
+
+    if (!roomId) {
+      setError('No se pudo identificar la sala seleccionada')
+      return
+    }
+
+    if (!user) {
+      setError('Debe iniciar sesión para realizar una reserva')
       return
     }
 
@@ -143,18 +167,25 @@ const RoomAvailability = (): JSX.Element => {
     setSuccessMessage(null)
 
     try {
+      // Format date and times to match backend expectations
+      const formattedDate = format(selectedDate, 'yyyy-MM-dd');
+      const formattedStartTime = `${startTime}:00`;
+      const formattedEndTime = `${endTime}:00`;
+
       const reservationData = {
         room_id: roomId,
         user_id: user.id,
-        start_datetime: startDateTime.toISOString(),
-        end_datetime: endDateTime.toISOString(),
+        date: formattedDate,
+        start_time: formattedStartTime,
+        end_time: formattedEndTime,
         status: 'pending'
       }
 
       await createReservation(reservationData)
 
-      setSuccessMessage('Reserva creada correctamente')
+      setSuccessMessage(`Reserva creada correctamente para el día ${formattedDate} de ${formattedStartTime} a ${formattedEndTime}`)
       // Resetear valores después de reserva exitosa
+      setSelectedDate(new Date())
       setStartTime('00:00')
       setEndTime('00:30')
     } catch (err) {
@@ -165,33 +196,13 @@ const RoomAvailability = (): JSX.Element => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#1a472a] to-[#2d5a3c]">
-      {/* Header */}
-      <header className="flex justify-between items-center p-4 text-white">
-        <div>
-          <button onClick={() => navigate('/user')} className="hover:text-gray-200">
-            Ver salas
-          </button>
-        </div>
-        <div className="flex gap-4">
-          <button className="hover:text-gray-200">Mis reservas</button>
-          <button onClick={() => navigate('/profile')} className="hover:text-gray-200">
-            {user?.first_name || 'Usuario'}
-          </button>
-          <button className="hover:text-gray-200">→</button>
-        </div>
-      </header>
-
+    <div className="min-h-screen bg-gray-50">
       {/* Content */}
-      <div className="container mx-auto p-4">
-        <div className="bg-[#e7efe9] rounded-lg p-8 max-w-4xl mx-auto">
+      <div className="container mx-auto p-4 bg-gray-50">
+        <div className="bg-white rounded-lg p-8 max-w-4xl mx-auto">
           {isLoading ? (
             <div className="flex justify-center items-center h-64">
               <LoadingSpinner />
-            </div>
-          ) : error ? (
-            <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-8">
-              {error}
             </div>
           ) : (
             <>
@@ -200,10 +211,35 @@ const RoomAvailability = (): JSX.Element => {
 
               {/* Success message */}
               {successMessage && (
-                <div className="bg-green-50 border border-green-200 text-green-700 p-4 rounded-lg mb-8">
-                  {successMessage}
+                <div className="bg-green-50 border border-green-200 text-green-700 p-4 rounded-lg mb-8 flex items-start">
+                  <svg className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path>
+                  </svg>
+                  <div>
+                    <p className="font-medium">{successMessage}</p>
+                    <p className="text-sm mt-1">Puede ver sus reservas en la sección "Mis Reservas".</p>
+                    <button
+                      onClick={() => navigate('/reservations')}
+                      className="mt-2 text-white bg-green-600 hover:bg-green-700 px-3 py-1 rounded text-sm"
+                    >
+                      Ver mis reservas
+                    </button>
+                  </div>
                 </div>
               )}
+              {
+                error && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-8 flex items-start">
+                    <svg className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd"></path>
+                    </svg>
+                    <div>
+                      <p className="font-medium">Error al procesar la reserva</p>
+                      <p className="text-sm mt-1">{error}</p>
+                    </div>
+                  </div>
+                )
+              }
 
               {/* Room Details */}
               <div className="space-y-2 mb-8">
@@ -211,10 +247,9 @@ const RoomAvailability = (): JSX.Element => {
                   <>
                     <h1 className="text-2xl font-semibold">{room.name}</h1>
                     <div className="space-y-1 text-gray-600">
-                      <p>Capacidad: {room.capacity}</p>
-                      <p>Equipamiento: {room.equipment || 'No especificado'}</p>
-                      <p>Ubicación: {room.location || 'No especificada'}</p>
-                      <p>Precio: {room.price || 'No especificado'}</p>
+                      <p>Capacidad: {room.capacity} personas</p>
+                      {room.description && <p>Descripción: {room.description}</p>}
+                      <p className="mt-2 text-sm text-gray-500">Complete el formulario a continuación para reservar esta sala</p>
                     </div>
                   </>
                 )}
@@ -289,7 +324,12 @@ const RoomAvailability = (): JSX.Element => {
                           }}
                           className="appearance-none bg-white border border-gray-200 rounded-md py-2 pl-4 pr-8 text-sm cursor-pointer relative min-w-[120px] text-left focus:outline-none focus:ring-2 focus:ring-[#1a472a] focus:border-[#1a472a] flex items-center justify-between"
                         >
-                          <span>{startTime}</span>
+                          <div className="flex items-center">
+                            <svg className="h-4 w-4 mr-2 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                            </svg>
+                            <span>{startTime}</span>
+                          </div>
                           <svg
                             className={`h-4 w-4 text-gray-400 transition-transform ${isStartOpen ? 'rotate-0' : 'rotate-180'}`}
                             fill="none"
@@ -307,9 +347,8 @@ const RoomAvailability = (): JSX.Element => {
                             {generateTimeSlots().map((time) => (
                               <div
                                 key={time}
-                                className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
-                                  time === startTime ? 'bg-gray-100' : ''
-                                }`}
+                                className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${time === startTime ? 'bg-gray-100' : ''
+                                  }`}
                                 onClick={() => {
                                   setStartTime(time)
                                   setIsStartOpen(false)
@@ -332,7 +371,12 @@ const RoomAvailability = (): JSX.Element => {
                           }}
                           className="appearance-none bg-white border border-gray-200 rounded-md py-2 pl-4 pr-8 text-sm cursor-pointer relative min-w-[120px] text-left focus:outline-none focus:ring-2 focus:ring-[#1a472a] focus:border-[#1a472a] flex items-center justify-between"
                         >
-                          <span>{endTime}</span>
+                          <div className="flex items-center">
+                            <svg className="h-4 w-4 mr-2 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                            </svg>
+                            <span>{endTime}</span>
+                          </div>
                           <svg
                             className={`h-4 w-4 text-gray-400 transition-transform ${isEndOpen ? 'rotate-0' : 'rotate-180'}`}
                             fill="none"
@@ -350,9 +394,8 @@ const RoomAvailability = (): JSX.Element => {
                             {generateEndTimes(startTime).map((time) => (
                               <div
                                 key={time}
-                                className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
-                                  time === endTime ? 'bg-gray-100' : ''
-                                }`}
+                                className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${time === endTime ? 'bg-gray-100' : ''
+                                  }`}
                                 onClick={() => {
                                   setEndTime(time)
                                   setIsEndOpen(false)
@@ -372,24 +415,40 @@ const RoomAvailability = (): JSX.Element => {
                 )}
               </div>
 
+              {/* Reservation Summary */}
+              {selectedDate && startTime && endTime && (
+                <div className="mt-6 bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <h3 className="text-lg font-medium text-blue-800 mb-2">Resumen de la reserva</h3>
+                  <div className="text-sm text-blue-700 space-y-1">
+                    <p><span className="font-medium">Sala:</span> {room?.name}</p>
+                    <p><span className="font-medium">Fecha:</span> {format(selectedDate, "EEEE d 'de' MMMM 'de' yyyy", { locale: es })}</p>
+                    <p><span className="font-medium">Horario:</span> {startTime} - {endTime}</p>
+                  </div>
+                </div>
+              )}
+
               {/* Reserve Button */}
               <div className="mt-6">
                 <button
                   onClick={handleReservation}
                   disabled={!selectedDate || !startTime || !endTime || isSubmitting}
-                  className={`w-full py-3 rounded-lg transition-colors ${
-                    selectedDate && startTime && endTime && !isSubmitting
+                  className={`w-full py-3 rounded-lg transition-colors ${selectedDate && startTime && endTime && !isSubmitting
                       ? 'bg-[#1a472a] text-white hover:bg-[#2d5a3c]'
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  }`}
+                    }`}
                 >
                   {isSubmitting ? (
                     <div className="flex items-center justify-center">
                       <LoadingSpinner className="h-5 w-5 mr-2" />
-                      Procesando...
+                      Creando reserva...
                     </div>
                   ) : (
-                    'Reservar sala'
+                    <div className="flex items-center justify-center">
+                      <svg className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z" clipRule="evenodd" />
+                      </svg>
+                      Confirmar reserva
+                    </div>
                   )}
                 </button>
               </div>

@@ -1,15 +1,12 @@
-import axios from 'axios'
 import { api } from './api'
 
 export interface Reservation {
   id: string
   user_id: string
   room_id: string
-  date?: string // Opcional porque vamos a usar start_datetime y end_datetime
-  start_time?: string // Opcional porque vamos a usar start_datetime y end_datetime
-  end_time?: string // Opcional porque vamos a usar start_datetime y end_datetime
-  start_datetime?: string // Nueva propiedad
-  end_datetime?: string // Nueva propiedad
+  date: string
+  start_time: string
+  end_time: string
   status: string
   room?: {
     name: string

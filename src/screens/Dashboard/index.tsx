@@ -26,24 +26,21 @@ const Dashboard = (): JSX.Element => {
       if (!user) return
 
       try {
-        // Cargar reservas del usuario
         setIsLoadingReservations(true)
         const today = new Date().toISOString().split('T')[0]
         const userReservations = await getReservations({ userId: user.id })
 
-        // Filtrar para obtener solo las reservas futuras
         const upcoming = userReservations
           .filter((res: any) => {
-            return res?.date >= today && res.status === 'confirmed'
+            return res?.date >= today && (res.status === 'confirmed' || res.status === 'pending')
           })
           .sort((a, b) => {
-            // Ordenar por fecha y hora de inicio
             return (
               new Date(a.date + 'T' + a.start_time).getTime() -
               new Date(b.date + 'T' + b.start_time).getTime()
             )
           })
-          .slice(0, 5) // Mostrar solo las próximas 5 reservas
+          .slice(0, 5)
 
         setUpcomingReservations(upcoming)
       } catch (err) {
@@ -54,11 +51,9 @@ const Dashboard = (): JSX.Element => {
       }
 
       try {
-        // Cargar salas disponibles
         setIsLoadingRooms(true)
         const rooms = await getRooms()
 
-        // Mostrar salas con estado "available"
         const available = rooms.filter((room) => room.status === 'available').slice(0, 6)
         setAvailableRooms(available)
       } catch (err) {
@@ -79,8 +74,6 @@ const Dashboard = (): JSX.Element => {
   const handleRoomClick = (roomId: string) => {
     navigate(`/room/${roomId}`)
   }
-
-  console.log({ isLoadingReservations, isLoadingRooms })
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -106,7 +99,7 @@ const Dashboard = (): JSX.Element => {
 
               <button
                 onClick={() => navigate('/reservations')}
-                className="mt-4 px-4 py-2 text-sm text-center text-white rounded-md"
+                className="mt-4 px-4 py-2 text-sm text-center text-white rounded-md cursor-pointer"
                 style={{ backgroundColor: theme.colors.primary }}
               >
                 Ver todas mis reservas
@@ -141,7 +134,7 @@ const Dashboard = (): JSX.Element => {
 
               <button
                 onClick={() => navigate('/rooms')}
-                className="mt-4 col-span-full px-4 py-2 text-sm text-center text-white rounded-md"
+                className="mt-4 col-span-full px-4 py-2 text-sm text-center text-white rounded-md cursor-pointer"
                 style={{ backgroundColor: theme.colors.primary }}
               >
                 Ver todas las salas
@@ -167,7 +160,7 @@ const Dashboard = (): JSX.Element => {
           <p className="mb-4">Reserva una sala para hoy o mañana en pocos clics.</p>
           <button
             onClick={() => navigate('/rooms')}
-            className="w-full py-2 rounded-md text-sm font-medium transition-colors"
+            className="w-full py-2 rounded-md text-sm font-medium transition-colors cursor-pointer"
             style={{ backgroundColor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(4px)' }}
           >
             Reservar ahora
@@ -181,7 +174,7 @@ const Dashboard = (): JSX.Element => {
           <p className="mb-4 text-gray-600">Actualiza tus datos personales y preferencias.</p>
           <button
             onClick={() => navigate('/profile')}
-            className="w-full py-2 rounded-md text-sm font-medium transition-colors"
+            className="w-full py-2 rounded-md text-sm font-medium transition-colors cursor-pointer"
             style={{ backgroundColor: theme.colors.lightGray, color: theme.colors.secondary }}
           >
             Ver perfil
@@ -194,13 +187,14 @@ const Dashboard = (): JSX.Element => {
         >
           <h3 className="text-xl font-semibold mb-2">Ayuda</h3>
           <p className="mb-4">¿Necesitas ayuda con tus reservas?</p>
-          <button
-            onClick={() => navigate('/help')}
-            className="w-full py-2 rounded-md text-sm font-medium transition-colors"
+          <a
+            href="/src/assets/Manual de usuario.pdf"
+            download="Manual de usuario.pdf"
+            className="w-full py-2 rounded-md text-sm font-medium transition-colors inline-block text-center"
             style={{ backgroundColor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(4px)' }}
           >
             Centro de ayuda
-          </button>
+          </a>
         </div>
       </div>
     </div>

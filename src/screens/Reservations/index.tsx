@@ -4,95 +4,25 @@ import { useAuth } from '../../contexts/AuthContext'
 import {
   getReservations,
   cancelReservation,
-  Reservation as ApiReservation
+  Reservation as ApiReservation,
+  Reservation
 } from '../../services/reservations'
-import { format } from 'date-fns'
+import { format, isToday, isAfter, isBefore, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 import ReservationCard from '../../components/common/ReservationCard'
 import EmptyState from '../../components/common/EmptyState'
 import LoadingSpinner from '../../components/common/LoadingSpinner'
-import Section from '../../components/common/Section'
 import Header from '../../components/Header'
-
-// Para mantener compatibilidad con el mock existente
-type Reservation = {
-  id: string
-  roomName: string
-  capacity: string
-  date: string
-  startTime: string
-  endTime: string
-  status: 'upcoming' | 'cancelled' | 'past'
-}
-
-// Usar datos mock mientras se implementa la integración con la API
-const mockReservations: Reservation[] = [
-  {
-    id: '1',
-    roomName: 'Sala 1',
-    capacity: '4-6 personas',
-    date: '2025-05-15',
-    startTime: '10:00',
-    endTime: '11:00',
-    status: 'upcoming'
-  },
-  {
-    id: '4',
-    roomName: 'Sala 4',
-    capacity: '20-25 personas',
-    date: '2025-05-16',
-    startTime: '15:00',
-    endTime: '16:00',
-    status: 'upcoming'
-  },
-  {
-    id: '2',
-    roomName: 'Sala 2',
-    capacity: '8-10 personas',
-    date: '2025-05-14',
-    startTime: '14:00',
-    endTime: '15:00',
-    status: 'cancelled'
-  },
-  {
-    id: '5',
-    roomName: 'Sala 1',
-    capacity: '4-6 personas',
-    date: '2025-05-13',
-    startTime: '11:00',
-    endTime: '12:00',
-    status: 'cancelled'
-  },
-  {
-    id: '3',
-    roomName: 'Sala 3',
-    capacity: '12-15 personas',
-    date: '2025-05-13',
-    startTime: '09:00',
-    endTime: '10:00',
-    status: 'past'
-  },
-  {
-    id: '6',
-    roomName: 'Sala 2',
-    capacity: '8-10 personas',
-    date: '2025-05-12',
-    startTime: '16:00',
-    endTime: '17:00',
-    status: 'past'
-  }
-]
 
 const Reservations = (): JSX.Element => {
   const navigate = useNavigate()
   const { user } = useAuth()
 
-  const [reservations, setReservations] = useState<ApiReservation[]>([])
-  const [filteredReservations, setFilteredReservations] = useState<ApiReservation[]>([])
+  const [reservations, setReservations] = useState<Reservation[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
-  const [activeFilter, setActiveFilter] = useState<'all' | 'upcoming' | 'past' | 'cancelled'>('all')
   const [isCancelling, setIsCancelling] = useState<boolean>(false)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchReservations = async () => {
@@ -100,9 +30,17 @@ const Reservations = (): JSX.Element => {
 
       try {
         setIsLoading(true)
-        const reservationsData = await getReservations({ userId: user.id })
-        setReservations(reservationsData)
-        setFilteredReservations(reservationsData)
+        const userReservations = await getReservations({ userId: user.id })
+
+        // Ordenar todas las reservas por fecha
+        const sortedReservations = userReservations.sort((a, b) => {
+          return (
+            new Date(a.date + 'T' + a.start_time).getTime() -
+            new Date(b.date + 'T' + b.start_time).getTime()
+          )
+        })
+
+        setReservations(sortedReservations)
       } catch (err) {
         setError('Error al cargar las reservas')
         console.error(err)
@@ -111,49 +49,132 @@ const Reservations = (): JSX.Element => {
       }
     }
 
-    // Comentar esta línea para usar datos mock
-    // fetchReservations();
-
-    // Descomentar esta línea para usar datos reales
-    // setIsLoading(false); // Usar datos mock por ahora
+    fetchReservations()
   }, [user])
 
-  // Función para filtrar por estado
+  const handleCancelReservation = async (id: string) => {
+    try {
+      const goCancel = window.confirm(
+        '¿Estás seguro de que deseas cancelar esta reserva? Esta acción no se puede deshacer.'
+      )
+
+      if (!goCancel) return
+
+      setIsCancelling(true)
+      setError(null)
+
+      await cancelReservation(id)
+
+      // Update local state
+      setReservations(prev =>
+        prev.map(res =>
+          res.id === id ? { ...res, status: 'cancelled' } : res
+        )
+      )
+
+      setSuccessMessage('Reserva cancelada correctamente')
+      setTimeout(() => setSuccessMessage(null), 5000)
+    } catch (err) {
+      setError('Error al cancelar la reserva')
+      console.error(err)
+    } finally {
+      setIsCancelling(false)
+    }
+  }
+
   const getReservationsByStatus = (status: 'upcoming' | 'cancelled' | 'past') => {
-    return mockReservations.filter((res) => res.status === status)
+    const today = new Date().toISOString().split('T')[0]
+
+    return reservations.filter((res) => {
+      const isBeforeToday = res.date < today
+
+      switch (status) {
+        case 'upcoming':
+          return !isBeforeToday && res.status !== 'cancelled'
+        case 'cancelled':
+          return res.status === 'cancelled'
+        case 'past':
+          return isBeforeToday && res.status !== 'cancelled'
+        default:
+          return false
+      }
+    })
   }
 
-  const handleCancelReservation = (id: string) => {
-    console.log('Cancelling reservation:', id)
-    // Implementar la cancelación real cuando se integre con la API
-  }
-
-  const FolderTab = ({ title, reservations }: { title: string; reservations: Reservation[] }) => (
-    <Section>
-      <div className="folder-tab">
-        <div className="folder-tab-header">{title}</div>
-        <div className="folder-content">
-          <div className="space-y-4">
-            {reservations.map((reservation) => (
-              <ReservationCard
-                key={reservation.id}
-                {...reservation}
-                onCancel={handleCancelReservation}
-              />
-            ))}
-          </div>
+  const ReservationSection = ({
+    title,
+    reservations,
+    status
+  }: {
+    title: string
+    reservations: Reservation[]
+    status: 'upcoming' | 'cancelled' | 'past'
+  }) => {
+    if (reservations.length === 0) {
+      return null
+    }
+    return (
+      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <h2 className="text-xl font-semibold mb-4 text-gray-800">{title}</h2>
+        <div className="space-y-4">
+          {reservations.map((reservation) => (
+            <ReservationCard
+              key={reservation.id}
+              {...reservation}
+              onCancel={handleCancelReservation}
+              status={status}
+            />
+          ))}
         </div>
       </div>
-    </Section>
-  )
+    )
+  }
+
+  console.log('Reservations:', reservations)
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#1a472a] to-[#2d5a3c] p-4">
+    <div className="min-h-screen bg-gray-50">
       <Header showBackButton />
-      <div className="mt-8 space-y-8 flex flex-col items-center w-full">
-        <FolderTab title="Próximas" reservations={getReservationsByStatus('upcoming')} />
-        <FolderTab title="Canceladas" reservations={getReservationsByStatus('cancelled')} />
-        <FolderTab title="Anteriores" reservations={getReservationsByStatus('past')} />
+
+      <div className="container mx-auto p-4 pt-8">
+        {/* Success message */}
+        {successMessage && (
+          <div className="bg-green-50 border border-green-200 text-green-700 p-4 rounded-lg mb-6 flex items-start">
+            <svg className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path>
+            </svg>
+            <div>
+              <p className="font-medium">{successMessage}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Error message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-6 flex items-start">
+            <svg className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd"></path>
+            </svg>
+            <div>
+              <p className="font-medium">Error</p>
+              <p className="text-sm mt-1">{error}</p>
+            </div>
+          </div>
+        )}
+
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">Mis Reservas</h1>
+
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <LoadingSpinner />
+          </div>
+        ) : (
+          <div className="max-w-4xl mx-auto">
+            <ReservationSection title="Próximas" status={'upcoming'} reservations={getReservationsByStatus('upcoming')} />
+            <ReservationSection title="Canceladas" status={'cancelled'} reservations={getReservationsByStatus('cancelled')} />
+            <ReservationSection title="Anteriores" status={'past'} reservations={getReservationsByStatus('past')} />
+          </div>
+        )}
       </div>
     </div>
   )

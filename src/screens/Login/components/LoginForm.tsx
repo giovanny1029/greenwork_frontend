@@ -1,23 +1,36 @@
 import { JSX, useState } from 'react'
+import { useAuth } from '../../../contexts/AuthContext'
 
 interface LoginFormProps {
   activeTab: 'login' | 'register'
   onLogin: (email: string, password: string) => void
   onRegister: (first_name: string, last_name: string, email: string, password: string) => void
+  errorLogin?: string | null
 }
 
-const LoginForm = ({ activeTab, onLogin, onRegister }: LoginFormProps): JSX.Element => {
+const LoginForm = ({ activeTab, onLogin, onRegister, errorLogin }: LoginFormProps): JSX.Element => {
   const [loginEmail, setLoginEmail] = useState('')
   const [loginPassword, setLoginPassword] = useState('')
+
+  const { error } = useAuth()
 
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [registerEmail, setRegisterEmail] = useState('')
   const [registerPassword, setRegisterPassword] = useState('')
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
+    // Evitar el comportamiento predeterminado de enviar el formulario y recargar la página
     e.preventDefault()
-    onLogin(loginEmail, loginPassword)
+
+    // Solo intentar login si tenemos email y password
+    if (loginEmail && loginPassword) {
+      // No usamos try/catch aquí porque queremos que el error se propague al componente padre
+      // que es quien maneja los errores y actualiza el estado global
+      onLogin(loginEmail, loginPassword)
+    } else {
+      alert('Por favor, introduce tanto el email como la contraseña')
+    }
   }
 
   const handleRegisterSubmit = (e: React.FormEvent) => {
@@ -28,6 +41,11 @@ const LoginForm = ({ activeTab, onLogin, onRegister }: LoginFormProps): JSX.Elem
   if (activeTab === 'login') {
     return (
       <form onSubmit={handleLoginSubmit} className="w-full max-w-md">
+        {error && (
+          <div className="mb-6 p-4 text-red-600 bg-red-50 rounded-lg text-center border border-red-200">
+            <p className="font-medium">{error}</p>
+          </div>
+        )}
         <div className="mb-6">
           <input
             type="email"
@@ -62,6 +80,16 @@ const LoginForm = ({ activeTab, onLogin, onRegister }: LoginFormProps): JSX.Elem
 
   return (
     <form onSubmit={handleRegisterSubmit} className="w-full max-w-md">
+      {error && (
+        <div className="mb-6 p-4 text-red-600 bg-red-50 rounded-lg text-center border border-red-200">
+          <p className="font-medium">{error}</p>
+        </div>
+      )}
+      {errorLogin && (
+        <div className="mb-6 p-4 text-red-600 bg-red-50 rounded-lg text-center border border-red-200">
+          <p className="font-medium">{errorLogin}</p>
+        </div>
+      )}
       <div className="mb-6">
         <input
           type="text"

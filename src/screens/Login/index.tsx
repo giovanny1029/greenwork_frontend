@@ -1,27 +1,47 @@
-import { JSX, useState } from 'react'
+import { JSX, useState, useEffect } from 'react'
 import LoginForm from './components/LoginForm'
-import { login, register } from '../../services/auth'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../contexts/AuthContext'
 
 const Login = (): JSX.Element => {
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login')
   const [error, setError] = useState<string | null>(null)
   const navigate = useNavigate()
+  const { login, register, error: authError, user } = useAuth()
+
+  useEffect(() => {
+    // Si el usuario ya está autenticado, redirigir al dashboard
+    if (user) {
+      navigate('/dashboard')
+    }
+  }, [user, navigate])
 
   const handleLogin = async (email: string, password: string) => {
     try {
+      // Resetear cualquier error previo
       setError(null)
+
+      // Validación básica en el cliente
+      if (!email || !password) {
+        setError('El email y la contraseña son obligatorios')
+        return
+      }
+
       console.log('Intentando login con:', { email })
-      const response = await login({ email, password })
-      console.log('Respuesta del login:', response)
-      localStorage.setItem('token', response.access_token)
-      localStorage.setItem('refreshToken', response.refresh_token)
-      localStorage.setItem('user', JSON.stringify(response.user))
-      console.log('dentro')
-      navigate('/dashboard') // Redirigir después de iniciar sesión exitosamente
-    } catch (error) {
-      console.error('Error en login:', error)
-      setError(error instanceof Error ? error.message : 'Error en el inicio de sesión')
+      console.log('Iniciando proceso de login...')
+
+      // Llamar a la función de login de AuthContext
+      await login(email, password)
+
+      // Si llegamos aquí sin error, el login fue exitoso
+      console.log('Login completado sin errores')
+
+      // No necesitamos hacer nada más, el AuthContext actualiza el estado
+      // y el useEffect se encargará de la redirección
+    } catch (err) {
+      // Capturar el error de login y mostrarlo
+      console.error('Error en login:', err)
+      setError(err instanceof Error ? err.message : 'Error en el inicio de sesión')
     }
   }
 
@@ -33,11 +53,8 @@ const Login = (): JSX.Element => {
   ) => {
     try {
       setError(null)
-      const response = await register({ first_name, last_name, email, password })
-      localStorage.setItem('token', response.access_token)
-      localStorage.setItem('refreshToken', response.refresh_token)
-      localStorage.setItem('user', JSON.stringify(response.user))
-      navigate('/dashboard') // Redirigir después de registrarse exitosamente
+      await register(first_name, last_name, email, password)
+      // La redirección se hará automáticamente cuando se actualice el estado del usuario
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Error en el registro')
     }
@@ -81,11 +98,12 @@ const Login = (): JSX.Element => {
             </div>
           </div>
 
-          {error && (
-            <div className="mb-6 p-3 text-red-500 bg-red-50 rounded-lg text-center">{error}</div>
-          )}
-
-          <LoginForm activeTab={activeTab} onLogin={handleLogin} onRegister={handleRegister} />
+          <LoginForm
+            activeTab={activeTab}
+            onLogin={handleLogin}
+            onRegister={handleRegister}
+            errorLogin={error}
+          />
 
           {activeTab === 'login' && (
             <div className="mt-6 text-center">

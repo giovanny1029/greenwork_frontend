@@ -9,7 +9,7 @@ import Card from '../../components/common/Card'
 import LoadingSpinner from '../../components/common/LoadingSpinner'
 
 const Profile = (): JSX.Element => {
-  const { user, logout, updateProfile, changePassword, deleteAccount } = useAuth()
+  const { user, updateProfile, changePassword, deleteAccount } = useAuth()
   const navigate = useNavigate()
 
   const [isUpdating, setIsUpdating] = useState<boolean>(false)
@@ -190,9 +190,9 @@ const Profile = (): JSX.Element => {
           )}
 
           <Card className="shadow-md">
-            <div className="flex justify-center mb-8">
+            {/* <div className="flex justify-center mb-8">
               <ProfileImage />
-            </div>
+            </div> */}
 
             {isUpdating && (
               <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center rounded-xl">
@@ -263,22 +263,6 @@ const Profile = (): JSX.Element => {
                 </Button>
               </div>
             </form>
-
-            {/* Logout button */}
-            <div className="mt-8 pt-4 border-t border-gray-200 flex justify-between items-center">
-              <button
-                type="button"
-                onClick={() => {
-                  if (confirm('¿Estás seguro de que deseas cerrar tu sesión?')) {
-                    logout()
-                    navigate('/login')
-                  }
-                }}
-                className="text-gray-600 hover:text-gray-800 text-sm"
-              >
-                Cerrar sesión
-              </button>
-            </div>
 
             <div className="mt-8 pt-4 border-t border-gray-200 text-right">
               <button

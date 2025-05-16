@@ -55,15 +55,25 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       if (storedToken && storedUser) {
         try {
-          // Aquí podríamos hacer una solicitud para validar el token y obtener los datos del usuario
-          // Por ahora, solo verificamos si hay un token almacenado
-          const storedUser = localStorage.getItem('user')
-          if (storedUser) {
-            setUser(JSON.parse(storedUser))
+          // Intentamos parsear el usuario almacenado
+          const parsedUser = JSON.parse(storedUser)
+
+          // Verificamos que el usuario tenga la estructura correcta
+          if (parsedUser && parsedUser.id) {
+            setUser(parsedUser)
+            setToken(storedToken)
+          } else {
+            // Si el usuario no tiene la estructura correcta, limpiamos el storage
+            localStorage.removeItem('token')
+            localStorage.removeItem('refreshToken')
+            localStorage.removeItem('user')
+            setToken(null)
+            setUser(null)
           }
-          setToken(storedToken)
         } catch (err) {
+          // Si hay un error al parsear, limpiamos el storage
           localStorage.removeItem('token')
+          localStorage.removeItem('refreshToken')
           localStorage.removeItem('user')
           setToken(null)
           setUser(null)
@@ -73,20 +83,28 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     checkAuth()
   }, [])
-
   const handleLogin = async (email: string, password: string) => {
     setIsLoading(true)
     setError(null)
-    console.log('agskuyafskuavcksjavsja')
+
     try {
       const response = await login({ email, password })
+
+      // Asegurarse de que tenemos todos los datos necesarios antes de considerarlo un login exitoso
+      if (!response || !response.access_token || !response.refresh_token || !response.user) {
+        throw new Error('Respuesta de login incompleta')
+      }
+
+      // Guardar datos en localStorage
       localStorage.setItem('token', response.access_token)
       localStorage.setItem('refreshToken', response.refresh_token)
       localStorage.setItem('user', JSON.stringify(response.user))
+
+      // Actualizar estado
       setToken(response.access_token)
       setUser(response.user)
-      setIsLoading(false)
     } catch (err: any) {
+      console.error('Error durante el login:', err)
       setError(err.message || 'Error en el inicio de sesión')
     } finally {
       setIsLoading(false)
@@ -113,13 +131,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       localStorage.setItem('user', JSON.stringify(response.user))
       setToken(response.access_token)
       setUser(response.user)
-      setIsLoading(false)
     } catch (err: any) {
       setError(err.message || 'Error en el registro')
     } finally {
       setIsLoading(false)
     }
   }
+
   const handleLogout = () => {
     localStorage.removeItem('token')
     localStorage.removeItem('refreshToken')
@@ -127,6 +145,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setToken(null)
     setUser(null)
   }
+
   const clearError = () => {
     setError(null)
   }
@@ -146,6 +165,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const updatedUser = response.user
       localStorage.setItem('user', JSON.stringify(updatedUser))
       setUser(updatedUser)
+
+      // Actualizar el token si viene en la respuesta
+      if (response.access_token) {
+        localStorage.setItem('token', response.access_token)
+        setToken(response.access_token)
+      }
+
+      if (response.refresh_token) {
+        localStorage.setItem('refreshToken', response.refresh_token)
+      }
     } catch (err: any) {
       setError(err.message || 'Error al actualizar el perfil')
       throw err
@@ -153,13 +182,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setIsLoading(false)
     }
   }
+
   const handleChangePassword = async (currentPassword: string, newPassword: string) => {
     if (!user) return
     setIsLoading(true)
     setError(null)
     try {
       const { changePassword } = await import('../services/auth')
+      // Aquí sólo esperamos un mensaje del backend
       await changePassword(user.id, currentPassword, newPassword)
+
+      // No podemos actualizar tokens aquí porque el backend no los devuelve
+      // Podríamos implementar una función para obtener tokens nuevos si es necesario
     } catch (err: any) {
       setError(err.message || 'Error al cambiar la contraseña')
       throw err

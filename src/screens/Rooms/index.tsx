@@ -1,14 +1,11 @@
 import { JSX, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useTheme } from '../../contexts/ThemeContext'
 import { getRooms, Room } from '../../services/rooms'
 import Card from '../../components/common/Card'
 import EmptyState from '../../components/common/EmptyState'
 import LoadingSpinner from '../../components/common/LoadingSpinner'
-import Section from '../../components/common/Section'
 
 const RoomsScreen = (): JSX.Element => {
-  const { theme } = useTheme()
   const navigate = useNavigate()
 
   const [rooms, setRooms] = useState<Room[]>([])
