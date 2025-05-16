@@ -12,6 +12,7 @@ import ReservationCard from '../../components/common/ReservationCard'
 import EmptyState from '../../components/common/EmptyState'
 import LoadingSpinner from '../../components/common/LoadingSpinner'
 import Section from '../../components/common/Section'
+import Header from '../../components/Header'
 
 // Para mantener compatibilidad con el mock existente
 type Reservation = {

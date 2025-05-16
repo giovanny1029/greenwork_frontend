@@ -17,12 +17,14 @@ const Login = (): JSX.Element => {
       localStorage.setItem('token', response.access_token)
       localStorage.setItem('refreshToken', response.refresh_token)
       localStorage.setItem('user', JSON.stringify(response.user))
+      console.log('dentro')
       navigate('/dashboard') // Redirigir después de iniciar sesión exitosamente
     } catch (error) {
       console.error('Error en login:', error)
       setError(error instanceof Error ? error.message : 'Error en el inicio de sesión')
     }
   }
+
   const handleRegister = async (
     first_name: string,
     last_name: string,

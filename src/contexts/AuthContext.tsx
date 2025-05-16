@@ -44,7 +44,7 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null)
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'))
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   // Verificar el token al cargar el componente
@@ -77,6 +77,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const handleLogin = async (email: string, password: string) => {
     setIsLoading(true)
     setError(null)
+    console.log('agskuyafskuavcksjavsja')
     try {
       const response = await login({ email, password })
       localStorage.setItem('token', response.access_token)
@@ -84,6 +85,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       localStorage.setItem('user', JSON.stringify(response.user))
       setToken(response.access_token)
       setUser(response.user)
+      setIsLoading(false)
     } catch (err: any) {
       setError(err.message || 'Error en el inicio de sesión')
     } finally {
@@ -111,6 +113,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       localStorage.setItem('user', JSON.stringify(response.user))
       setToken(response.access_token)
       setUser(response.user)
+      setIsLoading(false)
     } catch (err: any) {
       setError(err.message || 'Error en el registro')
     } finally {

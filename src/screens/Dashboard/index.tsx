@@ -33,8 +33,8 @@ const Dashboard = (): JSX.Element => {
 
         // Filtrar para obtener solo las reservas futuras
         const upcoming = userReservations
-          .filter((res) => {
-            return res.date >= today && res.status === 'confirmed'
+          .filter((res: any) => {
+            return res?.date >= today && res.status === 'confirmed'
           })
           .sort((a, b) => {
             // Ordenar por fecha y hora de inicio
@@ -80,9 +80,11 @@ const Dashboard = (): JSX.Element => {
     navigate(`/room/${roomId}`)
   }
 
+  console.log({ isLoadingReservations, isLoadingRooms })
+
   return (
     <div className="container mx-auto px-4 py-6">
-      <h1 className="text-3xl font-bold mb-8 text-gray-800">Panel de Control</h1>
+      <h1 className="text-3xl font-bold mb-8 text-gray-800">Dashboard</h1>
 
       {error && <div className="mb-6 p-4 bg-red-50 text-red-500 rounded-lg">{error}</div>}
 

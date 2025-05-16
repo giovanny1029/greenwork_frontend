@@ -173,7 +173,7 @@ export const updateProfile = async (
   updateData: UpdateProfileData
 ): Promise<AuthResponse> => {
   try {
-    const { data } = await api.patch<AuthResponse>(`/api/users/${userId}`, updateData)
+    const { data } = await api.put<AuthResponse>(`/api/users/${userId}`, updateData)
     return data
   } catch (error: any) {
     throw new Error(error?.response?.data?.message || 'Error al actualizar el perfil')
