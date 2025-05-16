@@ -1,3 +1,61 @@
+.folder-tab {
+  margin-bottom: 2rem;
+}
+
+.folder-tab-header {
+  background-color: #1a472a;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  font-weight: 500;
+}
+
+.folder-content {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+  padding: 1.5rem;
+}
+
+/* Estilos para el calendario */
+.calendar {
+  width: 100%;
+  background-color: white;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: #1a472a;
+  color: white;
+}
+
+.calendar-nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.calendar-nav-btn {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.calendar-nav-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
 .time-button {
   appearance: none;
   background: white;

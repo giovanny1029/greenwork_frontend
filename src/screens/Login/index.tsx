@@ -11,9 +11,15 @@ const Login = (): JSX.Element => {
   const handleLogin = async (email: string, password: string) => {
     try {
       setError(null)
+      console.log('Intentando login con:', { email })
       const response = await login({ email, password })
-      localStorage.setItem('token', response.token)
+      console.log('Respuesta del login:', response)
+      localStorage.setItem('token', response.access_token)
+      localStorage.setItem('refreshToken', response.refresh_token)
+      localStorage.setItem('user', JSON.stringify(response.user))
+      navigate('/dashboard') // Redirigir después de iniciar sesión exitosamente
     } catch (error) {
+      console.error('Error en login:', error)
       setError(error instanceof Error ? error.message : 'Error en el inicio de sesión')
     }
   }
@@ -26,7 +32,10 @@ const Login = (): JSX.Element => {
     try {
       setError(null)
       const response = await register({ first_name, last_name, email, password })
-      localStorage.setItem('token', response.token)
+      localStorage.setItem('token', response.access_token)
+      localStorage.setItem('refreshToken', response.refresh_token)
+      localStorage.setItem('user', JSON.stringify(response.user))
+      navigate('/dashboard') // Redirigir después de registrarse exitosamente
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Error en el registro')
     }

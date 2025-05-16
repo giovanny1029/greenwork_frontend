@@ -3,11 +3,13 @@ import { JSX } from 'react'
 interface LoadingSpinnerProps {
   size?: 'small' | 'medium' | 'large'
   color?: string
+  className?: string
 }
 
 const LoadingSpinner = ({
   size = 'medium',
-  color = '#1a472a'
+  color = '#1a472a',
+  className = ''
 }: LoadingSpinnerProps): JSX.Element => {
   const sizeMap = {
     small: 'w-4 h-4',
@@ -16,7 +18,7 @@ const LoadingSpinner = ({
   }
 
   return (
-    <div className={`${sizeMap[size]} animate-spin`}>
+    <div className={`${sizeMap[size]} animate-spin ${className}`}>
       <svg className="w-full h-full" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <circle
           className="opacity-25"

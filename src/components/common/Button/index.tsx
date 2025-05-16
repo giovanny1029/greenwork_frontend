@@ -6,11 +6,11 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const Button = ({ variant = 'primary', className = '', ...props }: ButtonProps): JSX.Element => {
   const baseStyles =
-    'font-bold py-3 px-8 rounded-full transition duration-300 transform hover:scale-105'
+    'font-semibold py-2 px-6 rounded-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2'
   const variants = {
-    primary: 'bg-blue-600 hover:bg-blue-700 text-white',
-    secondary: 'bg-green-600 hover:bg-green-700 text-white',
-    white: 'bg-white hover:bg-gray-100 text-gray-900'
+    primary: 'bg-[#333333] hover:bg-gray-700 text-white focus:ring-gray-500',
+    secondary: 'bg-[#1a472a] hover:bg-[#2d5a3c] text-white focus:ring-[#1a472a]',
+    white: 'bg-white hover:bg-gray-100 text-gray-900 border border-gray-300 focus:ring-[#1a472a]'
   }
 
   return <button className={`${baseStyles} ${variants[variant]} ${className}`} {...props} />

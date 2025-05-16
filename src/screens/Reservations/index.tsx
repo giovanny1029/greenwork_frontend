@@ -1,9 +1,19 @@
-import { JSX } from 'react'
-import Header from '../../components/Header'
+import { JSX, useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../contexts/AuthContext'
+import {
+  getReservations,
+  cancelReservation,
+  Reservation as ApiReservation
+} from '../../services/reservations'
+import { format } from 'date-fns'
+import { es } from 'date-fns/locale'
 import ReservationCard from '../../components/common/ReservationCard'
+import EmptyState from '../../components/common/EmptyState'
+import LoadingSpinner from '../../components/common/LoadingSpinner'
 import Section from '../../components/common/Section'
-import './styles.css'
 
+// Para mantener compatibilidad con el mock existente
 type Reservation = {
   id: string
   roomName: string
@@ -14,6 +24,7 @@ type Reservation = {
   status: 'upcoming' | 'cancelled' | 'past'
 }
 
+// Usar datos mock mientras se implementa la integración con la API
 const mockReservations: Reservation[] = [
   {
     id: '1',
@@ -72,12 +83,48 @@ const mockReservations: Reservation[] = [
 ]
 
 const Reservations = (): JSX.Element => {
-  const handleCancelReservation = (id: string) => {
-    console.log('Cancelling reservation:', id)
-  }
+  const navigate = useNavigate()
+  const { user } = useAuth()
 
+  const [reservations, setReservations] = useState<ApiReservation[]>([])
+  const [filteredReservations, setFilteredReservations] = useState<ApiReservation[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string | null>(null)
+  const [activeFilter, setActiveFilter] = useState<'all' | 'upcoming' | 'past' | 'cancelled'>('all')
+  const [isCancelling, setIsCancelling] = useState<boolean>(false)
+
+  useEffect(() => {
+    const fetchReservations = async () => {
+      if (!user) return
+
+      try {
+        setIsLoading(true)
+        const reservationsData = await getReservations({ userId: user.id })
+        setReservations(reservationsData)
+        setFilteredReservations(reservationsData)
+      } catch (err) {
+        setError('Error al cargar las reservas')
+        console.error(err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    // Comentar esta línea para usar datos mock
+    // fetchReservations();
+
+    // Descomentar esta línea para usar datos reales
+    // setIsLoading(false); // Usar datos mock por ahora
+  }, [user])
+
+  // Función para filtrar por estado
   const getReservationsByStatus = (status: 'upcoming' | 'cancelled' | 'past') => {
     return mockReservations.filter((res) => res.status === status)
+  }
+
+  const handleCancelReservation = (id: string) => {
+    console.log('Cancelling reservation:', id)
+    // Implementar la cancelación real cuando se integre con la API
   }
 
   const FolderTab = ({ title, reservations }: { title: string; reservations: Reservation[] }) => (
