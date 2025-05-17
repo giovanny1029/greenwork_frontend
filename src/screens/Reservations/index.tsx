@@ -4,11 +4,8 @@ import { useAuth } from '../../contexts/AuthContext'
 import {
   getReservations,
   cancelReservation,
-  Reservation as ApiReservation,
   Reservation
 } from '../../services/reservations'
-import { format, isToday, isAfter, isBefore, parseISO } from 'date-fns'
-import { es } from 'date-fns/locale'
 import ReservationCard from '../../components/common/ReservationCard'
 import EmptyState from '../../components/common/EmptyState'
 import LoadingSpinner from '../../components/common/LoadingSpinner'
@@ -21,7 +18,6 @@ const Reservations = (): JSX.Element => {
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
-  const [isCancelling, setIsCancelling] = useState<boolean>(false)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
   useEffect(() => {
@@ -60,9 +56,9 @@ const Reservations = (): JSX.Element => {
 
       if (!goCancel) return
 
-      setIsCancelling(true)
       setError(null)
-
+      
+      // Mostrar indicador de carga (en una implementación real)
       await cancelReservation(id)
 
       // Update local state
@@ -77,8 +73,6 @@ const Reservations = (): JSX.Element => {
     } catch (err) {
       setError('Error al cancelar la reserva')
       console.error(err)
-    } finally {
-      setIsCancelling(false)
     }
   }
 
@@ -110,22 +104,32 @@ const Reservations = (): JSX.Element => {
     reservations: Reservation[]
     status: 'upcoming' | 'cancelled' | 'past'
   }) => {
-    if (reservations.length === 0) {
-      return null
-    }
     return (
       <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4 text-gray-800">{title}</h2>
-        <div className="space-y-4">
-          {reservations.map((reservation) => (
-            <ReservationCard
-              key={reservation.id}
-              {...reservation}
-              onCancel={handleCancelReservation}
-              reservation_status={status}
+        {reservations.length > 0 ? (
+          <div className="space-y-4">
+            {reservations.map((reservation) => (
+              <ReservationCard
+                key={reservation.id}
+                {...reservation}
+                status={reservation.status as 'confirmed' | 'pending' | 'cancelled'}
+                onCancel={handleCancelReservation}
+                reservation_status={status}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="py-6">
+            <EmptyState
+              title={`No tienes reservas ${status === 'upcoming' ? 'próximas' : status === 'cancelled' ? 'canceladas' : 'anteriores'}`}
+              description={status === 'upcoming' ? "Reserva una sala para tus próximas actividades" : undefined}
+              icon="🗓️"
+              actionText={status === 'upcoming' ? "Reservar sala" : undefined}
+              onAction={status === 'upcoming' ? () => navigate('/rooms') : undefined}
             />
-          ))}
-        </div>
+          </div>
+        )}
       </div>
     )
   }
@@ -134,7 +138,7 @@ const Reservations = (): JSX.Element => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header showBackButton />
+      <Header />
 
       <div className="container mx-auto p-4 pt-8">
         {/* Success message */}
@@ -167,6 +171,16 @@ const Reservations = (): JSX.Element => {
         {isLoading ? (
           <div className="flex justify-center items-center h-64">
             <LoadingSpinner />
+          </div>
+        ) : reservations.length === 0 ? (
+          <div className="max-w-4xl mx-auto">
+            <EmptyState
+              title="No tienes reservas"
+              description="Aún no has realizado ninguna reserva. ¡Reserva una sala para empezar!"
+              icon="📅"
+              actionText="Reservar sala"
+              onAction={() => navigate('/rooms')}
+            />
           </div>
         ) : (
           <div className="max-w-4xl mx-auto">
