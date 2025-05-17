@@ -8,6 +8,7 @@ interface CardProps {
   subtitle?: string
   description?: string
   imageUrl?: string
+  imageComponent?: ReactNode
   actionText?: string
   onAction?: () => void
 }
@@ -20,6 +21,7 @@ const Card = ({
   subtitle,
   description,
   imageUrl,
+  imageComponent,
   actionText,
   onAction
 }: CardProps): JSX.Element => {
@@ -33,12 +35,16 @@ const Card = ({
         className={`${baseStyles} ${clickStyles} ${className} overflow-hidden`}
         onClick={onClick}
       >
-        {imageUrl && (
+        {imageComponent ? (
+          <div className="h-40 -mx-6 -mt-6 mb-4 overflow-hidden">
+            {imageComponent}
+          </div>
+        ) : imageUrl ? (
           <div
             className="h-40 -mx-6 -mt-6 mb-4 bg-center bg-cover"
             style={{ backgroundImage: `url(${imageUrl})` }}
           />
-        )}
+        ) : null}
 
         {title && <h3 className="text-lg font-semibold text-gray-800 mb-1">{title}</h3>}
         {subtitle && <p className="text-sm text-gray-600 mb-3">{subtitle}</p>}

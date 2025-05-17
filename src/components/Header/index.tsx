@@ -1,9 +1,10 @@
 import { JSX, useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 
 const Header = (): JSX.Element => {
   const navigate = useNavigate()
+  const location = useLocation()
   const { user, logout, profileImage } = useAuth()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -11,6 +12,17 @@ const Header = (): JSX.Element => {
     logout()
     navigate('/login')
   }
+  // Función para determinar si una ruta está activa
+  const isActiveRoute = (path: string): boolean => {
+    // Verifica si la ruta actual comienza con el path del enlace
+    return location.pathname === path || 
+           (path !== '/' && location.pathname.startsWith(path))
+  }
+  
+  // Componente para el indicador de ruta activa en navegación desktop
+  const ActiveIndicator = () => (
+    <div className="absolute -bottom-3 left-0 right-0 h-0.5 bg-[#1a472a] rounded-full"></div>
+  )
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-white z-50 shadow-sm">
@@ -18,13 +30,15 @@ const Header = (): JSX.Element => {
         {/* Logo */}
         <Link to="/" className="flex items-center">
           <h1 className="text-2xl font-bold text-[#1a472a]">GreenWork</h1>
-        </Link>
-
-        {/* Navegación de escritorio */}
+        </Link>        {/* Navegación de escritorio */}
         <nav className="hidden md:flex items-center space-x-6">
           <Link
             to="/dashboard"
-            className="text-gray-700 hover:text-[#1a472a] transition-colors flex items-center"
+            className={`transition-colors flex items-center relative ${
+              isActiveRoute('/dashboard')
+                ? 'text-[#1a472a] font-medium'
+                : 'text-gray-700 hover:text-[#1a472a]'
+            }`}
           >
             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -35,10 +49,15 @@ const Header = (): JSX.Element => {
               />
             </svg>
             Dashboard
+            {isActiveRoute('/dashboard') && <ActiveIndicator />}
           </Link>
           <Link
             to="/rooms"
-            className="text-gray-700 hover:text-[#1a472a] transition-colors flex items-center"
+            className={`transition-colors flex items-center relative ${
+              isActiveRoute('/rooms')
+                ? 'text-[#1a472a] font-medium'
+                : 'text-gray-700 hover:text-[#1a472a]'
+            }`}
           >
             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -49,10 +68,14 @@ const Header = (): JSX.Element => {
               />
             </svg>
             Salas
-          </Link>
-          <Link
+            {isActiveRoute('/rooms') && <ActiveIndicator />}
+          </Link>          <Link
             to="/reservations"
-            className="text-gray-700 hover:text-[#1a472a] transition-colors flex items-center"
+            className={`transition-colors flex items-center relative ${
+              isActiveRoute('/reservations')
+                ? 'text-[#1a472a] font-medium'
+                : 'text-gray-700 hover:text-[#1a472a]'
+            }`}
           >
             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -63,11 +86,16 @@ const Header = (): JSX.Element => {
               />
             </svg>
             Mis Reservas
+            {isActiveRoute('/reservations') && <ActiveIndicator />}
           </Link>
           {user?.role === 'admin' && (
             <Link
               to="/admin"
-              className="text-gray-700 hover:text-[#1a472a] transition-colors flex items-center"
+              className={`transition-colors flex items-center relative ${
+                isActiveRoute('/admin')
+                  ? 'text-[#1a472a] font-medium'
+                  : 'text-gray-700 hover:text-[#1a472a]'
+              }`}
             >
               <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -84,6 +112,7 @@ const Header = (): JSX.Element => {
                 />
               </svg>
               Administración
+              {isActiveRoute('/admin') && <ActiveIndicator />}
             </Link>
           )}
         </nav>        {/* Menú de usuario de escritorio */}
@@ -182,25 +211,36 @@ const Header = (): JSX.Element => {
       {/* Menú móvil */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-white border-t border-gray-200">
-          <div className="container mx-auto py-3 px-4">
-            <nav className="flex flex-col space-y-4 mb-4">
+          <div className="container mx-auto py-3 px-4">            <nav className="flex flex-col space-y-4 mb-4">
               <Link
                 to="/dashboard"
-                className="text-gray-700 py-2 px-3 hover:bg-gray-100 rounded-md"
+                className={`py-2 px-3 rounded-md ${
+                  isActiveRoute('/dashboard')
+                    ? 'bg-[#1a472a] bg-opacity-10 text-[#1a472a] font-medium'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Dashboard
               </Link>
               <Link
                 to="/rooms"
-                className="text-gray-700 py-2 px-3 hover:bg-gray-100 rounded-md"
+                className={`py-2 px-3 rounded-md ${
+                  isActiveRoute('/rooms')
+                    ? 'bg-[#1a472a] bg-opacity-10 text-[#1a472a] font-medium'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Salas
               </Link>
               <Link
                 to="/reservations"
-                className="text-gray-700 py-2 px-3 hover:bg-gray-100 rounded-md"
+                className={`py-2 px-3 rounded-md ${
+                  isActiveRoute('/reservations')
+                    ? 'bg-[#1a472a] bg-opacity-10 text-[#1a472a] font-medium'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Mis Reservas
@@ -208,16 +248,23 @@ const Header = (): JSX.Element => {
               {user?.role === 'admin' && (
                 <Link
                   to="/admin"
-                  className="text-gray-700 py-2 px-3 hover:bg-gray-100 rounded-md"
+                  className={`py-2 px-3 rounded-md ${
+                    isActiveRoute('/admin')
+                      ? 'bg-[#1a472a] bg-opacity-10 text-[#1a472a] font-medium'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Administración
                 </Link>
               )}
-            </nav>
-            <div className="border-t border-gray-200 pt-4 flex flex-col space-y-3">              <Link
+            </nav>            <div className="border-t border-gray-200 pt-4 flex flex-col space-y-3">              <Link
                 to="/profile"
-                className="flex items-center space-x-3 text-gray-700 py-2 px-3 hover:bg-gray-100 rounded-md"
+                className={`flex items-center space-x-3 py-2 px-3 rounded-md ${
+                  isActiveRoute('/profile')
+                    ? 'bg-[#1a472a] bg-opacity-10 text-[#1a472a] font-medium'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {profileImage ? (

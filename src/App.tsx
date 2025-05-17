@@ -5,7 +5,6 @@ import { ThemeProvider } from './contexts/ThemeContext'
 import { Toaster } from 'react-hot-toast'
 import './App.css'
 import Login from './screens/Login'
-import User from './screens/User'
 import RoomAvailability from './screens/RoomAvailability'
 import Reservations from './screens/Reservations'
 import Profile from './screens/Profile'
@@ -99,14 +98,6 @@ function AppRoutes(): JSX.Element {
         element={
           <ProtectedRoute>
             <Profile />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/user"
-        element={
-          <ProtectedRoute>
-            <User />
           </ProtectedRoute>
         }
       />

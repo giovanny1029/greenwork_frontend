@@ -4,6 +4,7 @@ import { getRooms, Room } from '../../services/rooms'
 import Card from '../../components/common/Card'
 import EmptyState from '../../components/common/EmptyState'
 import LoadingSpinner from '../../components/common/LoadingSpinner'
+import RoomImage from '../../components/common/RoomImage'
 
 const RoomsScreen = (): JSX.Element => {
   const navigate = useNavigate()
@@ -46,6 +47,8 @@ const RoomsScreen = (): JSX.Element => {
 
     return matchesSearch && matchesCapacity
   })
+
+  console.log('Filtered Rooms:', filteredRooms)
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -101,7 +104,14 @@ const RoomsScreen = (): JSX.Element => {
               title={room.name}
               subtitle={`Capacidad: ${room.capacity} personas`}
               description={room.description || 'Sin descripción disponible'}
-              imageUrl={`https://source.unsplash.com/random/300x200/?office,workspace&sig=${room.id}`}
+              imageComponent={
+                <RoomImage
+                  roomId={room.id}
+                  isBanner={true}
+                  readonly={true}
+                  height="160px"
+                />
+              }
               onClick={() => handleRoomClick(room.id)}
               actionText="Ver disponibilidad"
               onAction={() => handleRoomClick(room.id)}
