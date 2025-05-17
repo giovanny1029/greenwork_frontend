@@ -74,18 +74,16 @@ const ProfileImage = ({
       }
     }
   }
-
   return (
     <div
-      className="relative cursor-pointer group"
+      className="relative cursor-pointer group flex items-center justify-center mx-auto"
       style={{ width: size, height: size }}
       onClick={handleImageClick}
     >
-      <div className="relative w-full h-full">
-        <img
+      <div className="relative w-full h-full flex items-center justify-center">        <img
           src={image}
           alt="Profile"
-          className="w-full h-full rounded-full object-cover border-4 border-white shadow-md"
+          className="w-full h-full rounded-full object-contain border-4 border-white shadow-md"
         />
         <div className="absolute -bottom-1 -right-1 bg-[#1a472a] rounded-full p-1 shadow-md">
           <svg
