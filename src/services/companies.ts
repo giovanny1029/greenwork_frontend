@@ -1,5 +1,5 @@
-import axios from 'axios'
 import { api } from './api'
+import imageService, { ImageType, ImageResponse } from './image'
 
 export interface Company {
   id: string
@@ -76,4 +76,35 @@ export const deleteCompany = async (id: string): Promise<{ message: string }> =>
   } catch (error: any) {
     throw new Error(error?.response?.data?.message || 'Error al eliminar la compañía')
   }
+}
+
+// Funciones para manejar imágenes de compañía
+
+/**
+ * Sube una imagen para una compañía
+ * @param companyId ID de la compañía
+ * @param file Archivo de imagen
+ * @returns Respuesta con datos de la imagen
+ */
+export const uploadCompanyImage = async (companyId: string, file: File): Promise<ImageResponse> => {
+  return imageService.uploadImage(companyId, file, ImageType.COMPANY)
+}
+
+/**
+ * Obtiene la imagen de una compañía
+ * @param companyId ID de la compañía
+ * @returns Respuesta con datos de la imagen
+ */
+export const getCompanyImage = async (companyId: string): Promise<ImageResponse> => {
+  return imageService.getImage(companyId, ImageType.COMPANY)
+}
+
+/**
+ * Actualiza la imagen de una compañía
+ * @param companyId ID de la compañía
+ * @param file Archivo de imagen
+ * @returns Respuesta con datos de la imagen
+ */
+export const updateCompanyImage = async (companyId: string, file: File): Promise<ImageResponse> => {
+  return imageService.updateImage(companyId, file, ImageType.COMPANY)
 }

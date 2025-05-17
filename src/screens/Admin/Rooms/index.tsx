@@ -3,6 +3,7 @@ import AdminLayout from '../../../components/admin/AdminLayout'
 import AdminTable from '../../../components/admin/common/AdminTable'
 import AdminModal from '../../../components/admin/common/AdminModal'
 import Button from '../../../components/common/Button'
+import RoomImage from '../../../components/common/RoomImage'
 import { adminRoomServices, adminCompanyServices, Room, Company } from '../../../services/admin'
 
 const AdminRooms = (): JSX.Element => {
@@ -47,6 +48,17 @@ const AdminRooms = (): JSX.Element => {
       [name]: name === 'capacity' ? parseInt(value, 10) || 0 : value
     }))
   }
+
+  // Preseleccionar la compañía cuando se abre el modal para crear una nueva sala
+  useEffect(() => {
+    if (isModalOpen && !currentRoom?.id && companies.length > 0) {
+      // Si estamos creando una nueva sala y hay compañías disponibles, preseleccionar la primera
+      setCurrentRoom(prev => ({
+        ...prev,
+        company_id: companies[0]?.id || ''
+      }))
+    }
+  }, [isModalOpen, companies, currentRoom?.id])
 
   // Validar formulario
   const validateForm = () => {
@@ -117,8 +129,15 @@ const AdminRooms = (): JSX.Element => {
   // Columnas para la tabla
   const columns = [
     {
+      header: 'Imagen',
+      accessor: (room: Room) => (
+        <RoomImage roomId={room.id} size={40} readonly={true} />
+      ),
+      width: '80px'
+    },
+    {
       header: 'Nombre',
-      accessor: 'name'
+      accessor: 'name' as keyof Room
     },
     {
       header: 'Compañía',
@@ -126,7 +145,7 @@ const AdminRooms = (): JSX.Element => {
     },
     {
       header: 'Capacidad',
-      accessor: 'capacity'
+      accessor: 'capacity' as keyof Room
     },
     {
       header: 'Estado',
@@ -172,9 +191,10 @@ const AdminRooms = (): JSX.Element => {
               type="button"
               variant="secondary"
               onClick={() => {
+                // Al crear una nueva sala, preseleccionamos la compañía existente
                 setCurrentRoom({
                   name: '',
-                  company_id: '',
+                  company_id: companies.length > 0 ? companies[0].id : '',
                   capacity: 0,
                   status: 'available',
                   description: ''
@@ -201,7 +221,7 @@ const AdminRooms = (): JSX.Element => {
           <AdminTable
             data={rooms}
             columns={columns}
-            keyExtractor={(room) => room.id}
+            keyExtractor={(room) => room?.id}
             isLoading={isLoading}
             onEdit={(room) => {
               setCurrentRoom(room)
@@ -225,6 +245,21 @@ const AdminRooms = (): JSX.Element => {
         isSubmitting={isSubmitting}
       >
         <form className="space-y-4">
+          <div className="flex justify-center mb-4">
+            {currentRoom?.id && (
+              <RoomImage
+                roomId={currentRoom.id}
+                size={120}
+                isBanner={false}
+              />
+            )}
+            {!currentRoom?.id && (
+              <div className="text-center text-gray-500 text-sm">
+                Podrás añadir una imagen después de crear la sala
+              </div>
+            )}
+          </div>
+
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700">
               Nombre
@@ -235,35 +270,40 @@ const AdminRooms = (): JSX.Element => {
               id="name"
               value={currentRoom?.name || ''}
               onChange={handleInputChange}
-              className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#1a472a] focus:ring-[#1a472a] sm:text-sm ${
-                formErrors.name ? 'border-red-300' : ''
-              }`}
+              className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#1a472a] focus:ring-[#1a472a] sm:text-sm ${formErrors.name ? 'border-red-300' : ''
+                }`}
             />
             {formErrors.name && <p className="mt-1 text-sm text-red-600">{formErrors.name}</p>}
           </div>
 
-          <div>
-            <label htmlFor="company_id" className="block text-sm font-medium text-gray-700">
-              Compañía
-            </label>
-            <select
-              id="company_id"
-              name="company_id"
-              value={currentRoom?.company_id || ''}
-              onChange={handleInputChange}
-              className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#1a472a] focus:ring-[#1a472a] sm:text-sm ${
-                formErrors.company_id ? 'border-red-300' : ''
-              }`}
-              disabled
-            >
-              <option key={companies[0].id} value={companies[0].id} selected>
-                  {companies[0].name}
-                </option>
-            </select>
-            {formErrors.company_id && (
-              <p className="mt-1 text-sm text-red-600">{formErrors.company_id}</p>
-            )}
-          </div>
+          {
+            companies?.length > 0 && (
+              <div>
+                <label htmlFor="company_id" className="block text-sm font-medium text-gray-700">
+                  Compañía
+                </label>
+                <select
+                  id="company_id"
+                  name="company_id"
+                  value={currentRoom?.company_id || companies[0]?.id || ''}
+                  onChange={handleInputChange}
+                  className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#1a472a] focus:ring-[#1a472a] sm:text-sm ${formErrors.company_id ? 'border-red-300' : ''
+                    }`}
+                  disabled={true} // Siempre deshabilitado ya que solo hay una compañía
+                >
+                  {companies.map(company => (
+                    <option key={company.id} value={company.id}>
+                      {company.name}
+                    </option>
+                  ))}
+                </select>
+                {formErrors.company_id && (
+                  <p className="mt-1 text-sm text-red-600">{formErrors.company_id}</p>
+                )}
+              </div>
+            )
+          }
+
 
           <div>
             <label htmlFor="capacity" className="block text-sm font-medium text-gray-700">
@@ -276,9 +316,8 @@ const AdminRooms = (): JSX.Element => {
               min="1"
               value={currentRoom?.capacity || ''}
               onChange={handleInputChange}
-              className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#1a472a] focus:ring-[#1a472a] sm:text-sm ${
-                formErrors.capacity ? 'border-red-300' : ''
-              }`}
+              className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#1a472a] focus:ring-[#1a472a] sm:text-sm ${formErrors.capacity ? 'border-red-300' : ''
+                }`}
             />
             {formErrors.capacity && (
               <p className="mt-1 text-sm text-red-600">{formErrors.capacity}</p>

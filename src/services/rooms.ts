@@ -1,5 +1,5 @@
-import axios from 'axios'
 import { api } from './api'
+import imageService, { ImageType, ImageResponse } from './image'
 
 export interface Room {
   id: string
@@ -72,4 +72,35 @@ export const deleteRoom = async (id: string): Promise<{ message: string }> => {
   } catch (error: any) {
     throw new Error(error?.response?.data?.message || 'Error al eliminar la sala')
   }
+}
+
+// Funciones para manejar imágenes de sala
+
+/**
+ * Sube una imagen para una sala
+ * @param roomId ID de la sala
+ * @param file Archivo de imagen
+ * @returns Respuesta con datos de la imagen
+ */
+export const uploadRoomImage = async (roomId: string, file: File): Promise<ImageResponse> => {
+  return imageService.uploadImage(roomId, file, ImageType.ROOM)
+}
+
+/**
+ * Obtiene la imagen de una sala
+ * @param roomId ID de la sala
+ * @returns Respuesta con datos de la imagen
+ */
+export const getRoomImage = async (roomId: string): Promise<ImageResponse> => {
+  return imageService.getImage(roomId, ImageType.ROOM)
+}
+
+/**
+ * Actualiza la imagen de una sala
+ * @param roomId ID de la sala
+ * @param file Archivo de imagen
+ * @returns Respuesta con datos de la imagen
+ */
+export const updateRoomImage = async (roomId: string, file: File): Promise<ImageResponse> => {
+  return imageService.updateImage(roomId, file, ImageType.ROOM)
 }

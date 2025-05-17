@@ -16,6 +16,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { getRoomById, Room } from '../../services/rooms'
 import { createReservation } from '../../services/reservations'
 import LoadingSpinner from '../../components/common/LoadingSpinner'
+import RoomImage from '../../components/common/RoomImage'
 
 const RoomAvailability = (): JSX.Element => {
   const navigate = useNavigate()
@@ -206,45 +207,21 @@ const RoomAvailability = (): JSX.Element => {
             </div>
           ) : (
             <>
-              {/* Room Image */}
-              <div className="w-full h-64 bg-gray-900 mb-8"></div>
-
-              {/* Success message */}
-              {successMessage && (
-                <div className="bg-green-50 border border-green-200 text-green-700 p-4 rounded-lg mb-8 flex items-start">
-                  <svg className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path>
-                  </svg>
-                  <div>
-                    <p className="font-medium">{successMessage}</p>
-                    <p className="text-sm mt-1">Puede ver sus reservas en la sección "Mis Reservas".</p>
-                    <button
-                      onClick={() => navigate('/reservations')}
-                      className="mt-2 text-white bg-green-600 hover:bg-green-700 px-3 py-1 rounded text-sm"
-                    >
-                      Ver mis reservas
-                    </button>
-                  </div>
-                </div>
-              )}
-              {
-                error && (
-                  <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-8 flex items-start">
-                    <svg className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd"></path>
-                    </svg>
-                    <div>
-                      <p className="font-medium">Error al procesar la reserva</p>
-                      <p className="text-sm mt-1">{error}</p>
-                    </div>
-                  </div>
-                )
-              }
-
               {/* Room Details */}
               <div className="space-y-2 mb-8">
                 {room && (
                   <>
+                    {/* Banner image for the room */}
+                    <div className="mb-6 overflow-hidden rounded-xl shadow-md" style={{ height: '300px' }}>
+                      <RoomImage
+                        roomId={room.id}
+                        isBanner={true}
+                        height="100%"
+                        readonly={true}
+                        className="w-full h-full object-cover object-center"
+                      />
+                    </div>
+
                     <h1 className="text-2xl font-semibold">{room.name}</h1>
                     <div className="space-y-1 text-gray-600">
                       <p>Capacidad: {room.capacity} personas</p>
@@ -427,14 +404,46 @@ const RoomAvailability = (): JSX.Element => {
                 </div>
               )}
 
+              {/* Success message */}
+              {successMessage && (
+                <div className="bg-green-50 border border-green-200 text-green-700 p-4 rounded-lg mb-8 flex items-start">
+                  <svg className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path>
+                  </svg>
+                  <div>
+                    <p className="font-medium">{successMessage}</p>
+                    <p className="text-sm mt-1">Puede ver sus reservas en la sección "Mis Reservas".</p>
+                    <button
+                      onClick={() => navigate('/reservations')}
+                      className="mt-2 text-white bg-green-600 hover:bg-green-700 px-3 py-1 rounded text-sm"
+                    >
+                      Ver mis reservas
+                    </button>
+                  </div>
+                </div>
+              )}
+              {
+                error && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-8 flex items-start">
+                    <svg className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd"></path>
+                    </svg>
+                    <div>
+                      <p className="font-medium">Error al procesar la reserva</p>
+                      <p className="text-sm mt-1">{error}</p>
+                    </div>
+                  </div>
+                )
+              }
+
               {/* Reserve Button */}
               <div className="mt-6">
                 <button
                   onClick={handleReservation}
                   disabled={!selectedDate || !startTime || !endTime || isSubmitting}
                   className={`w-full py-3 rounded-lg transition-colors ${selectedDate && startTime && endTime && !isSubmitting
-                      ? 'bg-[#1a472a] text-white hover:bg-[#2d5a3c]'
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    ? 'bg-[#1a472a] text-white hover:bg-[#2d5a3c]'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     }`}
                 >
                   {isSubmitting ? (

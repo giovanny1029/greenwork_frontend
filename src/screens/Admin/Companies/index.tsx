@@ -3,6 +3,7 @@ import AdminLayout from '../../../components/admin/AdminLayout'
 import AdminTable from '../../../components/admin/common/AdminTable'
 import AdminModal from '../../../components/admin/common/AdminModal'
 import Button from '../../../components/common/Button'
+import CompanyImage from '../../../components/common/CompanyImage'
 import { adminCompanyServices, adminUserServices, Company, User } from '../../../services/admin'
 
 const AdminCompanies = (): JSX.Element => {
@@ -45,6 +46,13 @@ const AdminCompanies = (): JSX.Element => {
       [name]: value
     }))
   }
+  
+  // Manejar cambios en la imagen
+  const handleImageChange = (file: File) => {
+    console.log('Imagen seleccionada para la compañía:', file.name)
+    // No es necesario hacer nada más aquí porque CompanyImage maneja la actualización
+    // La imagen se actualiza después de guardar la compañía
+  }
 
   // Validar formulario
   const validateForm = () => {
@@ -75,12 +83,14 @@ const AdminCompanies = (): JSX.Element => {
     try {
       setIsSubmitting(true)
 
+      let savedCompany: Company;
+      
       if (currentCompany?.id) {
         // Actualizar compañía existente
-        await adminCompanyServices.updateCompany(currentCompany.id, currentCompany)
+        savedCompany = await adminCompanyServices.updateCompany(currentCompany.id, currentCompany)
       } else {
         // Crear nueva compañía
-        await adminCompanyServices.createCompany(currentCompany as Omit<Company, 'id'>)
+        savedCompany = await adminCompanyServices.createCompany(currentCompany as Omit<Company, 'id'>)
       }
 
       setIsModalOpen(false)
@@ -117,16 +127,23 @@ const AdminCompanies = (): JSX.Element => {
   // Columnas para la tabla
   const columns = [
     {
+      header: 'Logo',
+      accessor: (company: Company) => (
+        <CompanyImage companyId={company.id} size={40} readonly={true} />
+      ),
+      width: '80px'
+    },
+    {
       header: 'Nombre',
-      accessor: 'name'
+      accessor: 'name' as keyof Company
     },
     {
       header: 'Email',
-      accessor: 'email'
+      accessor: 'email' as keyof Company
     },
     {
       header: 'Teléfono',
-      accessor: 'phone'
+      accessor: 'phone' as keyof Company
     },
     {
       header: 'Propietario',
@@ -206,6 +223,21 @@ const AdminCompanies = (): JSX.Element => {
         isSubmitting={isSubmitting}
       >
         <form className="space-y-4">
+          <div className="flex justify-center mb-4">
+            {currentCompany?.id && (
+              <CompanyImage 
+                companyId={currentCompany.id} 
+                size={120} 
+                onImageChange={handleImageChange}
+              />
+            )}
+            {!currentCompany?.id && (
+              <div className="text-center text-gray-500 text-sm">
+                Podrás añadir un logo después de crear la compañía
+              </div>
+            )}
+          </div>
+          
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700">
               Nombre
