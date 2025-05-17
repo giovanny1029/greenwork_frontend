@@ -9,7 +9,7 @@ import Card from '../../components/common/Card'
 import LoadingSpinner from '../../components/common/LoadingSpinner'
 
 const Profile = (): JSX.Element => {
-  const { user, updateProfile, changePassword, deleteAccount } = useAuth()
+  const { user, updateProfile, changePassword, deleteAccount, profileImage } = useAuth()
   const navigate = useNavigate()
 
   const [isUpdating, setIsUpdating] = useState<boolean>(false)
@@ -190,9 +190,9 @@ const Profile = (): JSX.Element => {
           )}
 
           <Card className="shadow-md">
-            {/* <div className="flex justify-center mb-8">
-              <ProfileImage />
-            </div> */}
+            <div className="flex justify-center mb-8">
+              <ProfileImage initialImage={profileImage} />
+            </div>
 
             {isUpdating && (
               <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center rounded-xl">

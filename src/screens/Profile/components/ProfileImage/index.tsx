@@ -1,4 +1,5 @@
-import { JSX, useState, useRef } from 'react'
+import { JSX, useState, useRef, useEffect } from 'react'
+import { useAuth } from '../../../../contexts/AuthContext'
 
 interface ProfileImageProps {
   initialImage?: string
@@ -10,26 +11,67 @@ const ProfileImage = ({
   initialImage,
   onImageChange,
   size = 128
-}: ProfileImageProps): JSX.Element => {
+}: ProfileImageProps): JSX.Element => {  const { user, profileImage, updateProfileImage } = useAuth()
   const [image, setImage] = useState<string>(
-    initialImage ||
-      'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgM2MyLjY3IDAgOC4wMiAxLjM0IDguMDIgNHYuMDNjLS4wMS43My0uMjUgMS40My0uNyAyLjAyLTEuMDYgMS40LTIuODQgMS44NC00LjMzIDEuODQtMS4zMSAwLTMuMDgtLjM1LTQuMTgtMS41OS0uNi0uNjgtLjc5LTEuNTgtLjc5LTIuNDQgMC0yLjY2IDUuMzItMy44NiA3Ljk4LTMuODZ6TTEyIDIwYy0yLjIxIDAtNC4yNy0uNy01Ljk2LTEuODkuNDQtMS40NCAyLjA5LTEuODEgNC41My0yLjA3IDEuODYuNTcgMy44OC41NyA1Ljc0IDAtLjc5IDIuNTMtMy42NiAzLjk2LTQuMzEgMy45NnoiIGZpbGw9IiM2NjYiLz48L3N2Zz4='
+    initialImage || profileImage || 
+    'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgM2MyLjY3IDAgOC4wMiAxLjM0IDguMDIgNHYuMDNjLS4wMS43My0uMjUgMS40My0uNyAyLjAyLTEuMDYgMS40LTIuODQgMS44NC00LjMzIDEuODQtMS4zMSAwLTMuMDgtLjM1LTQuMTgtMS41OS0uNi0uNjgtLjc5LTEuNTgtLjc5LTIuNDQgMC0yLjY2IDUuMzItMy44NiA3Ljk4LTMuODZ6TTEyIDIwYy0yLjIxIDAtNC4yNy0uNy01Ljk2LTEuODkuNDQtMS40NCAyLjA5LTEuODEgNC41My0yLjA3IDEuODYuNTcgMy44OC41NyA1Ljc0IDAtLjc5IDIuNTMtMy42NiAzLjk2LTQuMzEgMy45NnoiIGZpbGw9IiM2NjYiLz48L3N2Zz4='
   )
   const fileInputRef = useRef<HTMLInputElement>(null)
+  // Actualizar la imagen cuando cambie profileImage en el contexto
+  useEffect(() => {
+    if (profileImage) {
+      console.log('ProfileImage: Actualizando imagen desde contexto')
+      setImage(profileImage)
+    }
+  }, [profileImage])
+
+  useEffect(() => {
+    if (initialImage) {
+      console.log('ProfileImage: Actualizando imagen desde prop initialImage')
+      setImage(initialImage)
+    }
+  }, [initialImage])
 
   const handleImageClick = () => {
     fileInputRef.current?.click()
   }
-
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      console.log('ProfileImage: Archivo seleccionado', {
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        lastModified: new Date(file.lastModified).toISOString()
+      })
+      
       const reader = new FileReader()
       reader.onloadend = () => {
-        setImage(reader.result as string)
+        const result = reader.result as string
+        console.log('ProfileImage: Vista previa generada con tamaño', result.length)
+        setImage(result)
       }
       reader.readAsDataURL(file)
-      onImageChange?.(file)
+      
+      // Llamar al método onImageChange proporcionado al componente
+      if (onImageChange) {
+        console.log('ProfileImage: Llamando a onImageChange')
+        onImageChange(file)
+      }
+      
+      // También actualizar la imagen del perfil en el contexto de autenticación
+      if (user) {
+        console.log('ProfileImage: Actualizando imagen de perfil para el usuario:', user.id)
+        // El servicio imageService.updateProfileImage ya maneja la lógica de POST/PUT internamente
+        // Si el usuario ya tiene una imagen, se hará un PUT, si no, se hará un POST
+        updateProfileImage(file)
+          .then(() => {
+            console.log('ProfileImage: Imagen de perfil actualizada exitosamente')
+          })
+          .catch((error: any) => {
+            console.error('ProfileImage: Error al actualizar la imagen de perfil:', error)
+          })
+      }
     }
   }
 

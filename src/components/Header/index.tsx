@@ -1,19 +1,10 @@
 import { JSX, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
-import Button from '../common/Button'
 
-interface HeaderProps {
-  showBackButton?: boolean
-  showNavigationButtons?: boolean
-}
-
-const Header = ({
-  showBackButton = false,
-  showNavigationButtons = true
-}: HeaderProps): JSX.Element => {
+const Header = (): JSX.Element => {
   const navigate = useNavigate()
-  const { user, logout } = useAuth()
+  const { user, logout, profileImage } = useAuth()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const handleLogout = () => {
@@ -95,18 +86,24 @@ const Header = ({
               Administración
             </Link>
           )}
-        </nav>
-
-        {/* Menú de usuario de escritorio */}
+        </nav>        {/* Menú de usuario de escritorio */}
         <div className="hidden md:flex items-center space-x-4">
           <div className="relative group">
             <button
               className="flex items-center space-x-2 focus:outline-none hover:opacity-80 transition-opacity"
               onClick={() => navigate('/profile')}
             >
-              <div className="w-8 h-8 rounded-full flex items-center justify-center text-white uppercase bg-[#1a472a] shadow-sm">
-                {user?.first_name ? user.first_name.charAt(0) : 'U'}
-              </div>
+              {profileImage ? (
+                <img 
+                  src={profileImage} 
+                  alt={user?.first_name || 'Usuario'} 
+                  className="w-8 h-8 rounded-full object-cover shadow-sm border-2 border-white"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-white uppercase bg-[#1a472a] shadow-sm">
+                  {user?.first_name ? user.first_name.charAt(0) : 'U'}
+                </div>
+              )}
               <span className="text-gray-800">{user?.first_name || 'Usuario'}</span>
               <svg
                 className="w-4 h-4 text-gray-500"
@@ -218,15 +215,22 @@ const Header = ({
                 </Link>
               )}
             </nav>
-            <div className="border-t border-gray-200 pt-4 flex flex-col space-y-3">
-              <Link
+            <div className="border-t border-gray-200 pt-4 flex flex-col space-y-3">              <Link
                 to="/profile"
                 className="flex items-center space-x-3 text-gray-700 py-2 px-3 hover:bg-gray-100 rounded-md"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                <div className="w-8 h-8 rounded-full flex items-center justify-center text-white uppercase bg-[#1a472a]">
-                  {user?.first_name ? user.first_name.charAt(0) : 'U'}
-                </div>
+                {profileImage ? (
+                  <img 
+                    src={profileImage} 
+                    alt={user?.first_name || 'Usuario'} 
+                    className="w-8 h-8 rounded-full object-cover shadow-sm border-2 border-white"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-white uppercase bg-[#1a472a]">
+                    {user?.first_name ? user.first_name.charAt(0) : 'U'}
+                  </div>
+                )}
                 <span>Mi Perfil</span>
               </Link>
               <button
