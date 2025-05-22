@@ -1,0 +1,72 @@
+volumes:
+  logs:
+    driver: local
+  mysql_data:
+    driver: local
+
+services:  # Servicio del backend (PHP 8.0)
+  backend:
+    build: ./greenwork_backend
+    working_dir: /var/www
+    command: sh -c "composer install --no-interaction && php -S 0.0.0.0:8080 -t public"
+    environment:
+      docker: "true"
+      DB_HOST: database
+      DB_USER: greenwork_user
+      DB_PASSWORD: greenwork_password
+      DB_NAME: greenwork
+      DB_PORT: 3306
+      PHP_INI_SCAN_DIR: "/usr/local/etc/php/conf.d:/var/www/php-config"
+    ports:
+      - 8080:8080
+    volumes:
+      - ./greenwork_backend:/var/www
+      - logs:/var/www/logs
+      - ./greenwork_backend/php-config:/var/www/php-config
+    depends_on:
+      - database
+    networks:
+      - app-network
+  # Servicio del frontend (Node.js con Vite)
+  frontend:
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    ports:
+      - 5173:5173
+    volumes:
+      - ./greenwork_frontend:/app
+    environment:
+      VITE_API_URL: "http://localhost:8080"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  # Base de datos MySQL
+  database:
+    image: mysql:8.0
+    container_name: greenwork-db
+    restart: always
+    ports:
+      - 3307:3306
+    environment:
+      MYSQL_DATABASE: greenwork
+      MYSQL_USER: greenwork_user
+      MYSQL_PASSWORD: greenwork_password
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_ROOT_HOST: "%"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./greenwork_backend/setup_database_updated.sql:/docker-entrypoint-initdb.d/01_setup_database.sql
+      - ./greenwork_backend/safe_update_reservations_payment.sql:/docker-entrypoint-initdb.d/02_update_payments.sql
+      - ./greenwork_backend/update_images_table.sql:/docker-entrypoint-initdb.d/03_update_images.sql
+      - ./greenwork_backend/update_rooms_table.sql:/docker-entrypoint-initdb.d/04_update_rooms.sql
+      - ./greenwork_backend/update_user_table.sql:/docker-entrypoint-initdb.d/05_update_users.sql
+      - ./greenwork_backend/update_reservations_room_relation.sql:/docker-entrypoint-initdb.d/06_update_relations.sql
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
