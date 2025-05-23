@@ -1,5 +1,6 @@
 import { JSX, useState } from 'react'
 import { useAuth } from '../../../contexts/AuthContext'
+import PrivacyModal from '../../../components/common/PrivacyModal'
 
 interface LoginFormProps {
   activeTab: 'login' | 'register'
@@ -18,6 +19,8 @@ const LoginForm = ({ activeTab, onLogin, onRegister, errorLogin }: LoginFormProp
   const [lastName, setLastName] = useState('')
   const [registerEmail, setRegisterEmail] = useState('')
   const [registerPassword, setRegisterPassword] = useState('')
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false)
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false)
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     // Evitar el comportamiento predeterminado de enviar el formulario y recargar la página
@@ -122,8 +125,7 @@ const LoginForm = ({ activeTab, onLogin, onRegister, errorLogin }: LoginFormProp
           className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-1 focus:ring-[#1a472a] focus:border-[#1a472a]"
           required
         />
-      </div>
-      <div className="mb-8">
+      </div>      <div className="mb-8">
         <input
           type="password"
           id="register-password"
@@ -134,12 +136,44 @@ const LoginForm = ({ activeTab, onLogin, onRegister, errorLogin }: LoginFormProp
           required
         />
       </div>
+      <div className="mb-6">
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            id="privacy-policy"
+            checked={acceptedPrivacy}
+            onChange={(e) => setAcceptedPrivacy(e.target.checked)}
+            className="h-4 w-4 text-[#1a472a] border-gray-300 rounded focus:ring-[#1a472a]"
+          />
+          <label htmlFor="privacy-policy" className="ml-2 block text-sm text-gray-700">
+            Acepto las{' '}
+            <button
+              type="button"
+              onClick={() => setShowPrivacyModal(true)}
+              className="text-[#1a472a] hover:text-[#2d5a3c] underline font-medium"
+            >
+              políticas de privacidad
+            </button>
+          </label>
+        </div>
+      </div>
       <button
         type="submit"
-        className="w-full bg-[#1a472a] text-white font-medium py-3 px-4 rounded-lg hover:bg-[#2d5a3c] transition duration-300"
+        disabled={!acceptedPrivacy}
+        className={`w-full font-medium py-3 px-4 rounded-lg transition duration-300 ${
+          !acceptedPrivacy
+            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            : 'bg-[#1a472a] text-white hover:bg-[#2d5a3c]'
+        }`}
       >
         Registrarse
       </button>
+      {showPrivacyModal && (
+        <PrivacyModal
+          isOpen={showPrivacyModal}
+          onClose={() => setShowPrivacyModal(false)}
+        />
+      )}
     </form>
   )
 }
