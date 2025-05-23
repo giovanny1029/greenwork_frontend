@@ -6,8 +6,8 @@ interface CardProps {
   className?: string
   onClick?: () => void
   title?: string
-  subtitle?: string
-  description?: string
+  subtitle?: string | ReactNode
+  description?: string | ReactNode
   imageUrl?: string
   imageComponent?: ReactNode
   actionText?: string

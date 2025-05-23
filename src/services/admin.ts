@@ -27,6 +27,8 @@ export interface Room {
   capacity: number
   status: string
   description: string
+  price?: string
+  address?: string
 }
 
 export interface Reservation {

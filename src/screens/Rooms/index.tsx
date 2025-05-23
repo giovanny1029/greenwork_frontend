@@ -2,9 +2,10 @@ import { JSX, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getRooms, Room } from '../../services/rooms'
 import Card from '../../components/common/Card'
-import EmptyState from '../../components/common/EmptyState'
-import LoadingSpinner from '../../components/common/LoadingSpinner'
 import RoomImage from '../../components/common/RoomImage'
+import LoadingSpinner from '../../components/common/LoadingSpinner'
+import EmptyState from '../../components/common/EmptyState'
+import { decodeUtf8Text } from '../../utils/encoding'
 
 const RoomsScreen = (): JSX.Element => {
   const navigate = useNavigate()
@@ -97,11 +98,20 @@ const RoomsScreen = (): JSX.Element => {
         </div>
       ) : filteredRooms.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredRooms.map((room) => (            <Card
+          {filteredRooms.map((room) => (
+            <Card
               key={room.id}
               title={room.name}
               subtitle={`Capacidad: ${room.capacity} personas${room.price ? ` • €${room.price}/hora` : ''}`}
-              description={room.description || 'Sin descripción disponible'}
+              description={
+                <>
+                  {room.description && <p>{room.description}</p>}                  {room.address && (
+                    <p className="mt-1">
+                      <span className="font-medium">Dirección:</span> {decodeUtf8Text(room.address)}
+                    </p>
+                  )}
+                </>
+              }
               imageComponent={
                 <RoomImage
                   roomId={room.id}

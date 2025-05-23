@@ -6,6 +6,7 @@ import { es } from 'date-fns/locale'
 import { JSX } from 'react'
 import { useTheme } from '../../../contexts/ThemeContext'
 import { Link } from 'react-router-dom'
+import { decodeUtf8Text } from '../../../utils/encoding'
 
 export interface ReservationCardProps {
   reservation?: ReservationType
@@ -55,11 +56,17 @@ const ReservationCard = (props: ReservationCardProps): JSX.Element => {
         onClick={onClick}
       >
         <div className="flex justify-between items-start mb-3">
-          <div>            <h3 className={`font-semibold mb-1 ${isDark ? 'text-[#F5F5F5]' : 'text-gray-800'}`}>{reservation.room?.name}</h3>
-            <p className={`text-sm capitalize ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>{formatDate(reservation.date)}</p>
-          </div>          <div
+          <div>
+            <h3 className={`font-semibold mb-1 ${isDark ? 'text-[#F5F5F5]' : 'text-gray-800'}`}>{reservation.room?.name}</h3>
+            <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>{formatDate(reservation.date)}</p>            {reservation.room?.address && (
+              <p className={`text-sm mt-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                <span className="font-medium">Dirección:</span> {decodeUtf8Text(reservation.room.address)}
+              </p>
+            )}
+          </div>
+          <div
             className={`px-2 py-1 text-xs font-medium rounded-full ${
-              reservation.status === 'confirmed' 
+              reservation.status === 'confirmed'
                 ? isDark ? 'bg-green-900 text-green-300' : 'bg-green-100 text-green-800'
                 : isDark ? 'bg-yellow-900 text-yellow-300' : 'bg-yellow-100 text-yellow-800'
             }`}

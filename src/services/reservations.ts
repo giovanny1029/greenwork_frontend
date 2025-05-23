@@ -17,6 +17,7 @@ export interface Reservation {
     company_id: string
     capacity: number
     price?: string
+    address?: string
   }
 }
 

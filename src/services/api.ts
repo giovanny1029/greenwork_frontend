@@ -6,9 +6,9 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
 console.log('API URL configurado:', API_URL)
 
 export const api = axios.create({
-  baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json'
+  baseURL: API_URL,  headers: {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Accept': 'application/json; charset=utf-8'
   }
 })
 

@@ -5,6 +5,7 @@ import AdminModal from '../../../components/admin/common/AdminModal'
 import Button from '../../../components/common/Button'
 import CompanyImage from '../../../components/common/CompanyImage'
 import { adminCompanyServices, adminUserServices, Company, User } from '../../../services/admin'
+import { decodeUtf8Text } from '../../../utils/encoding'
 
 const AdminCompanies = (): JSX.Element => {
   const [companies, setCompanies] = useState<Company[]>([])

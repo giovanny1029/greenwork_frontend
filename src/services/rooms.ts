@@ -11,6 +11,7 @@ export interface Room {
   equipment?: string
   location?: string
   price?: string
+  address?: string
 }
 
 export interface RoomQueryParams {

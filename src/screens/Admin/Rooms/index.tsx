@@ -5,6 +5,7 @@ import AdminModal from '../../../components/admin/common/AdminModal'
 import Button from '../../../components/common/Button'
 import RoomImage from '../../../components/common/RoomImage'
 import { adminRoomServices, adminCompanyServices, Room, Company } from '../../../services/admin'
+import { decodeUtf8Text } from '../../../utils/encoding'
 
 const AdminRooms = (): JSX.Element => {
   const [rooms, setRooms] = useState<Room[]>([])
@@ -36,25 +37,38 @@ const AdminRooms = (): JSX.Element => {
   useEffect(() => {
     fetchData()
   }, [])
-
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target
-    setCurrentRoom((prev) => ({
-      ...prev,
-      [name]: name === 'capacity' ? parseInt(value, 10) || 0 : value
-    }))
+    
+    if (name === 'company_id') {
+      const selectedCompany = companies.find(company => company.id === value)
+      
+      setCurrentRoom((prev) => ({
+        ...prev,
+        company_id: value,
+        address: decodeUtf8Text(selectedCompany?.address) || ''
+      }))
+    } else {
+      setCurrentRoom((prev) => ({
+        ...prev,
+        [name]: name === 'capacity' ? parseInt(value, 10) || 0 : value
+      }))
+    }
   }
 
   useEffect(() => {
     if (isModalOpen && !currentRoom?.id && companies.length > 0) {
+      const defaultCompany = companies[0]
       setCurrentRoom(prev => ({
         ...prev,
-        company_id: companies[0]?.id || ''
+        company_id: defaultCompany.id,
+        address: decodeUtf8Text(defaultCompany?.address) || ''
       }))
     }
-  }, [isModalOpen, companies, currentRoom?.id])
+  }, [isModalOpen, companies])
+
   const validateForm = () => {
     const errors: Record<string, string> = {}
 
@@ -279,11 +293,9 @@ const AdminRooms = (): JSX.Element => {
                 <select
                   id="company_id"
                   name="company_id"
-                  value={currentRoom?.company_id || companies[0]?.id || ''}
-                  onChange={handleInputChange}
+                  value={currentRoom?.company_id || companies[0]?.id || ''}                  onChange={handleInputChange}
                   className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#1a472a] focus:ring-[#1a472a] sm:text-sm ${formErrors.company_id ? 'border-red-300' : ''
                     }`}
-                  disabled={true}
                 >
                   {companies.map(company => (
                     <option key={company.id} value={company.id}>
@@ -345,6 +357,21 @@ const AdminRooms = (): JSX.Element => {
               value={currentRoom?.description || ''}
               onChange={handleInputChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#1a472a] focus:ring-[#1a472a] sm:text-sm"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="address" className="block text-sm font-medium text-gray-700">
+              Dirección
+            </label>
+            <input
+              type="text"
+              name="address"
+              id="address"
+              value={currentRoom?.address || ''}
+              onChange={handleInputChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#1a472a] focus:ring-[#1a472a] sm:text-sm"
+              placeholder="Ej: Calle Principal 123, Ciudad"
             />
           </div>
           

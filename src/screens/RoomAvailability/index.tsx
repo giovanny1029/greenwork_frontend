@@ -20,6 +20,7 @@ import { getReservations } from '../../services/reservations' // Import getReser
 import LoadingSpinner from '../../components/common/LoadingSpinner'
 import RoomImage from '../../components/common/RoomImage'
 import PaymentModal, { PaymentData } from '../../components/common/PaymentModal'
+import { decodeUtf8Text } from '../../utils/encoding'
 
 const RoomAvailability = (): JSX.Element => {
   const navigate = useNavigate()
@@ -281,9 +282,11 @@ const RoomAvailability = (): JSX.Element => {
                         readonly={true}
                         className="w-full h-full object-cover object-center"
                       />
-                    </div>                      <h1 className={`text-2xl font-semibold ${isDark ? 'text-gray-100' : ''}`}>{room.name}</h1>
+                    </div>
+                    <h1 className={`text-2xl font-semibold ${isDark ? 'text-gray-100' : ''}`}>{room.name}</h1>
                     <div className={`space-y-1 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                       <p>Capacidad: {room.capacity} personas</p>
+                      {room.address && <p>Dirección: {decodeUtf8Text(room.address)}</p>}
                       {room.price && <p>Precio: <span className={`font-medium ${isDark ? 'text-green-400' : 'text-green-700'}`}>€{room.price}/hora</span></p>}
                       {room.description && <p>Descripción: {room.description}</p>}
                       <p className={`mt-2 text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Complete el formulario a continuación para reservar esta sala</p>
@@ -361,7 +364,7 @@ const RoomAvailability = (): JSX.Element => {
                           className={`appearance-none ${isDark ? 'bg-gray-800 border-gray-700 text-gray-200' : 'bg-white border-gray-200'} border rounded-md py-2 pl-4 pr-8 text-sm cursor-pointer relative min-w-[120px] text-left focus:outline-none focus:ring-2 ${isDark ? 'focus:ring-[#1C6E41] focus:border-[#1C6E41]' : 'focus:ring-[#1a472a] focus:border-[#1a472a]'} flex items-center justify-between`}
                         >                          <div className="flex items-center">
                             <svg className={`h-4 w-4 mr-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                             </svg>
                             <span>{startTime}</span>
                           </div>

@@ -9,6 +9,8 @@ import ReservationCard from '../../components/common/ReservationCard'
 import EmptyState from '../../components/common/EmptyState'
 import Section from '../../components/common/Section'
 import Card from '../../components/common/Card'
+import RoomImage from '../../components/common/RoomImage'
+import { decodeUtf8Text } from '../../utils/encoding'
 
 const Dashboard = (): JSX.Element => {
   const { user } = useAuth()
@@ -122,11 +124,24 @@ const Dashboard = (): JSX.Element => {
             </div>
           ) : availableRooms.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {availableRooms.map((room) => (                <Card
+              {availableRooms.map((room) => (
+                <Card
                   key={room.id}
-                  title={room.name}
-                  subtitle={`Capacidad: ${room.capacity} personas${room.price ? ` • €${room.price}/hora` : ''}`}
+                  title={room.name}                  subtitle={
+                    <div className={`space-y-2 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                      <p><span className="font-medium">Dirección:</span> {decodeUtf8Text(room.address) || 'No especificada'}</p>
+                      <p>Capacidad: {room.capacity} personas{room.price ? ` • €${room.price}/hora` : ''}</p>
+                    </div>
+                  }
                   description={room.description}
+                  imageComponent={
+                    <RoomImage
+                      roomId={room.id}
+                      isBanner={true}
+                      readonly={true}
+                      height="160px"
+                    />
+                  }
                   onClick={() => handleRoomClick(room.id)}
                 />
               ))}
