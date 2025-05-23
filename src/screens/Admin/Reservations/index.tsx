@@ -22,6 +22,17 @@ const formatTime = (timeStr: string) => {
   return timeStr.substring(0, 5) // Solo HH:MM
 }
 
+// Función para añadir segundos a la hora cuando sea necesario
+const formatTimeForServer = (timeStr: string): string => {
+  if (!timeStr) return ''
+  // Si ya tiene segundos (HH:MM:SS), retornamos el valor tal cual
+  if (/^\d{2}:\d{2}:\d{2}$/.test(timeStr)) {
+    return timeStr
+  }
+  // Si solo tiene HH:MM, añadimos :00 para los segundos
+  return `${timeStr}:00`
+}
+
 const AdminReservations = (): JSX.Element => {
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [users, setUsers] = useState<User[]>([])
@@ -65,7 +76,6 @@ const AdminReservations = (): JSX.Element => {
       [name]: value
     }))
   }
-
   // Validar formulario
   const validateForm = () => {
     const errors: Record<string, string> = {}
@@ -91,7 +101,7 @@ const AdminReservations = (): JSX.Element => {
     } else if (
       currentReservation.start_time &&
       currentReservation.end_time &&
-      currentReservation.start_time >= currentReservation.end_time
+      formatTimeForServer(currentReservation.start_time) >= formatTimeForServer(currentReservation.end_time)
     ) {
       errors.end_time = 'La hora de fin debe ser posterior a la hora de inicio'
     }
@@ -99,7 +109,6 @@ const AdminReservations = (): JSX.Element => {
     setFormErrors(errors)
     return Object.keys(errors).length === 0
   }
-
   // Guardar reserva
   const handleSaveReservation = async () => {
     if (!validateForm()) return
@@ -107,13 +116,20 @@ const AdminReservations = (): JSX.Element => {
     try {
       setIsSubmitting(true)
 
+      // Formatear los tiempos para incluir segundos antes de enviarlos al servidor
+      const formattedReservation = {
+        ...currentReservation,
+        start_time: formatTimeForServer(currentReservation!.start_time!),
+        end_time: formatTimeForServer(currentReservation!.end_time!)
+      };
+
       if (currentReservation?.id) {
         // Actualizar reserva existente
-        await adminReservationServices.updateReservation(currentReservation.id, currentReservation)
+        await adminReservationServices.updateReservation(currentReservation.id, formattedReservation)
       } else {
         // Crear nueva reserva
         await adminReservationServices.createReservation(
-          currentReservation as Omit<Reservation, 'id'>
+          formattedReservation as Omit<Reservation, 'id'>
         )
       }
 

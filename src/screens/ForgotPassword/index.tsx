@@ -13,11 +13,11 @@ const ForgotPassword = (): JSX.Element => {
 
 Me pongo en contacto con ustedes para solicitar el cambio de mi contraseña de acceso. A continuación, les facilito mis datos personales para su verificación:
 
-Nombre: [Tu nombre] (adjente)
+Nombre: [Tu nombre]
 
-Apellidos: [Tus apellidos] (adjente)
+Apellidos: [Tus apellidos]
 
-DNI: [Tu número de DNI] (adjente imagen)
+DNI: [Tu número de DNI] (adjunte imagen)
 
 Agradezco de antemano su atención y quedo a la espera de sus indicaciones para continuar con el proceso de recuperación.
 
